@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aurora Studio</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      :root {
+        --bg: #06101d;
+        --panel: rgba(11, 18, 34, 0.7);
+        --panel-strong: rgba(10, 17, 30, 0.92);
+        --line: rgba(255, 255, 255, 0.12);
+        --text: #f4f7ff;
+        --muted: #a0afca;
+        --accent: #86a1ff;
+        --accent-2: #5ce4c2;
+        --shadow: 0 40px 100px rgba(0, 0, 0, 0.35);
+      }
+
+      body {
+        background:
+          radial-gradient(circle at 16% 22%, rgba(86, 130, 255, 0.32), transparent 22%),
+          radial-gradient(circle at 82% 18%, rgba(68, 229, 200, 0.26), transparent 18%),
+          radial-gradient(circle at 76% 72%, rgba(255, 171, 81, 0.18), transparent 20%),
+          linear-gradient(180deg, #050d17, #07101e 45%, #0a1322);
+      }
+
+      .sidebar {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+          linear-gradient(180deg, rgba(134, 161, 255, 0.06), transparent 46%);
+      }
+
+      .hero-card:first-child {
+        background:
+          radial-gradient(circle at 80% 14%, rgba(255, 255, 255, 0.18), transparent 18%),
+          linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+      }
+
+      .hero-card:last-child {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04));
+      }
+
+      .spot-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .spot {
+        flex: 1 1 180px;
+        min-width: 0;
+        border-radius: 20px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .spot strong {
+        display: block;
+        font-size: 17px;
+        margin-bottom: 8px;
+      }
+
+      .spot span {
+        color: var(--muted);
+        line-height: 1.7;
+        font-size: 13px;
+      }
+
+      .glow-line {
+        height: 1px;
+        margin: 24px 0 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="ambient">
+        <div class="blob" style="top: 80px; left: 4%; width: 300px; height: 300px; background: rgba(88, 122, 255, 0.34)"></div>
+        <div class="blob" style="top: 140px; right: 8%; width: 280px; height: 280px; background: rgba(76, 232, 201, 0.22)"></div>
+        <div class="blob" style="bottom: 30px; left: 38%; width: 340px; height: 340px; background: rgba(255, 177, 93, 0.16)"></div>
+        <div class="grain"></div>
+      </div>
+
+      <div class="window">
+        <div class="window-bar">
+          <div class="brand">
+            <div class="brand-badge">A</div>
+            <div class="brand-copy">
+              <div class="brand-title">Aurora Studio</div>
+              <div class="brand-subtitle">让对话界面看起来像下一代创作系统，而不是 Web 默认样式。</div>
+            </div>
+          </div>
+          <div class="window-actions">
+            <div class="window-pill">Workspace</div>
+            <div class="window-pill">Claude 4.1</div>
+            <div class="chrome-dots">
+              <span style="background:#ff8c7a"></span>
+              <span style="background:#ffd36a"></span>
+              <span style="background:#74e9c5"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-shell">
+          <aside class="sidebar">
+            <div class="sidebar-stack">
+              <a class="primary-button" href="./index.html">✦ 新建会话</a>
+              <div class="search">⌕ 搜索会话、附件、片段...</div>
+
+              <div class="side-card" style="padding: 16px; border-radius: 20px;">
+                <div class="section-label">
+                  <span>Today</span>
+                  <span>4 活跃</span>
+                </div>
+                <div class="session-list">
+                  <div class="session-card active">
+                    <div class="session-top">
+                      <div class="session-title">Claude Desktop 重设计</div>
+                      <div class="capsule">进行中</div>
+                    </div>
+                    <div class="session-meta">
+                      <span>12 条消息</span>
+                      <span class="tiny-dot"></span>
+                      <span>09:42</span>
+                    </div>
+                  </div>
+                  <div class="session-card">
+                    <div class="session-top">
+                      <div class="session-title">Tauri 设置面板</div>
+                      <div class="capsule">草稿</div>
+                    </div>
+                    <div class="session-meta">
+                      <span>8 条消息</span>
+                      <span class="tiny-dot"></span>
+                      <span>昨天</span>
+                    </div>
+                  </div>
+                  <div class="session-card">
+                    <div class="session-top">
+                      <div class="session-title">需求梳理</div>
+                      <div class="capsule">归档</div>
+                    </div>
+                    <div class="session-meta">
+                      <span>3 条消息</span>
+                      <span class="tiny-dot"></span>
+                      <span>周五</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="side-card" style="padding: 16px; border-radius: 20px;">
+                <div class="section-label">
+                  <span>Quick Surface</span>
+                </div>
+                <div class="hero-actions" style="margin-top: 10px;">
+                  <div class="hero-chip">📎 拖入设计稿</div>
+                  <div class="hero-chip">⚡ 生成页面结构</div>
+                  <div class="hero-chip">🧠 总结会话上下文</div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <main class="main">
+            <div class="main-top">
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <div class="capsule strong">项目：Claude Desktop</div>
+                  <div class="capsule">当前模式 / 设计工作台</div>
+                </div>
+                <div class="toolbar-right">
+                  <div class="capsule">窗口记忆</div>
+                  <div class="capsule">会话摘要开启</div>
+                </div>
+              </div>
+            </div>
+
+            <section class="content">
+              <div class="hero-grid">
+                <div class="hero-card">
+                  <div class="capsule strong" style="width: fit-content;">空白状态不该再像占位符</div>
+                  <div class="hero-title">把 Claude 变成一个你愿意长时间停留的桌面空间。</div>
+                  <div class="hero-copy">
+                    这个方向重点解决“廉价感”和“默认感”。左侧会话像收藏夹而不是列表，主区有明确主视觉焦点，输入区脱离死板边框，整体像工具型产品而不是临时拼出来的壳。
+                  </div>
+
+                  <div class="hero-actions">
+                    <div class="hero-chip">✨ 新建视觉探索</div>
+                    <div class="hero-chip">🖼 粘贴参考图</div>
+                    <div class="hero-chip">🧩 继续上次上下文</div>
+                  </div>
+
+                  <div class="hero-note">
+                    <div class="stat-card">
+                      <div class="stat-label">视觉关键词</div>
+                      <div class="stat-value">Glass + Glow</div>
+                      <div class="stat-sub">适合塑造“AI 原生桌面端”的品牌气质。</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-label">适配场景</div>
+                      <div class="stat-value">设计 / 研究</div>
+                      <div class="stat-sub">更适合高频使用和需要沉浸感的场景。</div>
+                    </div>
+                  </div>
+
+                  <div class="spot-row">
+                    <div class="spot">
+                      <strong>欢迎态更有记忆点</strong>
+                      <span>用能量球和快捷卡片替代灰色图标，让空白页也有品牌表达。</span>
+                    </div>
+                    <div class="spot">
+                      <strong>输入区像操作台</strong>
+                      <span>输入框悬浮、附件前置、发送按钮有明确主次，不再像网页评论框。</span>
+                    </div>
+                    <div class="spot">
+                      <strong>会话列表更精致</strong>
+                      <span>层次、阴影、状态信息都有了，用户一眼就知道哪里是当前上下文。</span>
+                    </div>
+                  </div>
+                  <div class="glow-line"></div>
+                </div>
+
+                <div class="hero-card">
+                  <div class="orb"></div>
+                  <div class="stat-card" style="margin-bottom: 12px;">
+                    <div class="stat-label">推荐做法</div>
+                    <div class="stat-value">作为主方案</div>
+                    <div class="stat-sub">如果你想要“看起来值钱”，这套最直接。</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-label">落地提示</div>
+                    <div class="stat-value">先做骨架</div>
+                    <div class="stat-sub">先把窗口栏、侧栏、空白态、输入区四块换掉，整体气质会立刻翻新。</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="message-stack">
+                <div class="message-row">
+                  <div class="message">
+                    <div class="message-role"><span>System</span><strong>欢迎回来</strong></div>
+                    <p>你可以发送文本、粘贴图片、拖入设计稿，或者让 Claude 直接接手整理当前工程上下文。这里不再是“空白页”，而是一个准备好开始工作的工作台。</p>
+                    <div class="bullets">
+                      <span>拖入图片即可分析</span>
+                      <span>自动生成会话标题</span>
+                      <span>支持摘要与导出</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="message-row user">
+                  <div class="message">
+                    <div class="message-role"><span>User</span><strong>我要重做这个桌面客户端的 UI</strong></div>
+                    <p>优先把左侧列表、欢迎态和输入区做出品牌感，别再是普通网页样式。</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="input-dock">
+                <div class="attachment-row">
+                  <div class="attachment">📎 screenshot-home.png</div>
+                  <div class="attachment">🧷 tauri-window-spec</div>
+                  <div class="attachment">🌈 当前主题：Aurora Studio</div>
+                </div>
+                <div class="composer">
+                  <button class="tool-button">＋</button>
+                  <div class="input-shell">
+                    <div class="input-placeholder">
+                      输入消息，或者把截图直接拖进来...
+                      <br />
+                      我会基于当前会话继续帮你拆页面、重构组件、或者直接给出完整视觉方案。
+                    </div>
+                  </div>
+                  <button class="send-button">发送</button>
+                </div>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

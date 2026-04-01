@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Claude Desktop UI Designs</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      :root {
+        --bg: #09111e;
+        --panel: rgba(12, 18, 30, 0.72);
+        --line: rgba(255, 255, 255, 0.12);
+        --text: #f4f7ff;
+        --muted: #9ba9c6;
+        --accent: #88a4ff;
+        --accent-2: #59dfc1;
+      }
+
+      body {
+        background:
+          radial-gradient(circle at 15% 20%, rgba(78, 130, 255, 0.28), transparent 24%),
+          radial-gradient(circle at 86% 18%, rgba(72, 217, 190, 0.18), transparent 20%),
+          radial-gradient(circle at 52% 82%, rgba(255, 181, 92, 0.18), transparent 24%),
+          linear-gradient(180deg, #07101c, #0d1423 62%, #0f1729);
+      }
+
+      .index-title strong {
+        display: block;
+        color: #ffffff;
+      }
+
+      .design-card:nth-child(1) .preview {
+        background: linear-gradient(145deg, rgba(133, 162, 255, 0.26), rgba(67, 233, 210, 0.16));
+      }
+
+      .design-card:nth-child(2) .preview {
+        background: linear-gradient(145deg, rgba(17, 27, 28, 0.96), rgba(13, 18, 22, 0.88));
+      }
+
+      .design-card:nth-child(3) .preview {
+        background: linear-gradient(145deg, #f3eadc, #e3d5bf);
+      }
+
+      .design-card:nth-child(1) .preview-shell {
+        background: rgba(6, 10, 20, 0.32);
+      }
+
+      .design-card:nth-child(1) .preview-side,
+      .design-card:nth-child(1) .preview-main {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .design-card:nth-child(1) .preview-bar,
+      .design-card:nth-child(1) .preview-pill {
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      .design-card:nth-child(2) .preview-shell {
+        background:
+          linear-gradient(rgba(77, 255, 200, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(77, 255, 200, 0.08) 1px, transparent 1px),
+          #071111;
+        background-size: 18px 18px;
+      }
+
+      .design-card:nth-child(2) .preview-side {
+        background: rgba(8, 18, 17, 0.92);
+        border: 1px solid rgba(109, 255, 211, 0.12);
+      }
+
+      .design-card:nth-child(2) .preview-main {
+        background: rgba(5, 10, 12, 0.84);
+        border: 1px solid rgba(109, 255, 211, 0.12);
+      }
+
+      .design-card:nth-child(2) .preview-bar,
+      .design-card:nth-child(2) .preview-pill {
+        background: rgba(109, 255, 211, 0.14);
+      }
+
+      .design-card:nth-child(3) .design-name,
+      .design-card:nth-child(3) .design-desc {
+        color: #2f2417;
+      }
+
+      .design-card:nth-child(3) {
+        color: #2f2417;
+        background: rgba(245, 237, 225, 0.84);
+        border-color: rgba(94, 63, 31, 0.1);
+      }
+
+      .design-card:nth-child(3) .preview-shell {
+        background: rgba(255, 251, 244, 0.82);
+      }
+
+      .design-card:nth-child(3) .preview-side,
+      .design-card:nth-child(3) .preview-main {
+        background: rgba(212, 186, 147, 0.28);
+      }
+
+      .design-card:nth-child(3) .preview-bar,
+      .design-card:nth-child(3) .preview-pill {
+        background: rgba(138, 96, 41, 0.22);
+      }
+
+      .footer-note {
+        margin-top: 20px;
+        color: var(--muted);
+        line-height: 1.8;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="ambient">
+        <div class="blob" style="top: 80px; left: -80px; width: 260px; height: 260px; background: rgba(96, 150, 255, 0.38)"></div>
+        <div class="blob" style="top: 260px; right: 10%; width: 320px; height: 320px; background: rgba(71, 225, 204, 0.26)"></div>
+        <div class="blob" style="bottom: 40px; left: 24%; width: 300px; height: 300px; background: rgba(255, 191, 92, 0.2)"></div>
+        <div class="grain"></div>
+      </div>
+
+      <main class="index-wrap">
+        <section class="index-hero">
+          <div class="eyebrow">Claude Desktop / UI Concepts / 2026.03</div>
+          <h1 class="index-title">
+            把“能用”
+            <strong>升级成值得天天打开。</strong>
+          </h1>
+          <div class="index-copy">
+            我把这套桌面端重新拆成三条完全不同的视觉路线：一套走高端 AI 工作台，一套走专业工具和编辑器语境，一套走更温暖、更像写作产品的纸感界面。每套都能本地直接打开预览，不需要跑项目。
+          </div>
+        </section>
+
+        <section class="design-grid">
+          <article class="design-card">
+            <div class="preview">
+              <div class="preview-shell">
+                <div class="preview-side">
+                  <div class="preview-stack">
+                    <div class="preview-bar"></div>
+                    <div class="preview-pill"></div>
+                    <div class="preview-pill"></div>
+                    <div class="preview-pill" style="height: 58px"></div>
+                    <div class="preview-pill" style="height: 58px"></div>
+                  </div>
+                </div>
+                <div class="preview-main">
+                  <div class="preview-stack">
+                    <div class="preview-bar" style="width: 36%"></div>
+                    <div class="preview-pill" style="height: 84px"></div>
+                    <div class="preview-pill" style="height: 140px"></div>
+                    <div class="preview-pill" style="height: 56px"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="design-meta">
+              <div class="design-name">Aurora Studio</div>
+              <div class="design-desc">
+                玻璃拟态、渐变能量球、漂浮输入区，整体更像一个高质感的 AI 创作工作台，适合做主视觉升级。
+              </div>
+              <div class="design-actions">
+                <a class="link-button" href="./aurora-studio.html">打开方案</a>
+                <a class="secondary-button" href="file:///D:/AI/ClaudeDesktop/ui-designs/aurora-studio.html">本地路径</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="design-card">
+            <div class="preview">
+              <div class="preview-shell">
+                <div class="preview-side">
+                  <div class="preview-stack">
+                    <div class="preview-bar" style="width: 72%"></div>
+                    <div class="preview-pill" style="height: 46px"></div>
+                    <div class="preview-pill" style="height: 46px"></div>
+                    <div class="preview-pill" style="height: 66px"></div>
+                    <div class="preview-pill" style="height: 66px"></div>
+                  </div>
+                </div>
+                <div class="preview-main">
+                  <div class="preview-stack">
+                    <div class="preview-bar" style="width: 44%"></div>
+                    <div class="preview-pill" style="height: 56px"></div>
+                    <div class="preview-pill" style="height: 66px"></div>
+                    <div class="preview-pill" style="height: 66px"></div>
+                    <div class="preview-pill" style="height: 52px"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="design-meta">
+              <div class="design-name">Terminal Noir</div>
+              <div class="design-desc">
+                深色专业工具风，弱荧光强调、信息密度更强，像“开发者真正会长期驻留”的重度客户端。
+              </div>
+              <div class="design-actions">
+                <a class="link-button" href="./terminal-noir.html">打开方案</a>
+                <a class="secondary-button" href="file:///D:/AI/ClaudeDesktop/ui-designs/terminal-noir.html">本地路径</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="design-card">
+            <div class="preview">
+              <div class="preview-shell">
+                <div class="preview-side">
+                  <div class="preview-stack">
+                    <div class="preview-bar" style="width: 65%"></div>
+                    <div class="preview-pill" style="height: 42px"></div>
+                    <div class="preview-pill" style="height: 58px"></div>
+                    <div class="preview-pill" style="height: 58px"></div>
+                    <div class="preview-pill" style="height: 42px"></div>
+                  </div>
+                </div>
+                <div class="preview-main">
+                  <div class="preview-stack">
+                    <div class="preview-bar" style="width: 30%"></div>
+                    <div class="preview-pill" style="height: 90px"></div>
+                    <div class="preview-pill" style="height: 150px"></div>
+                    <div class="preview-pill" style="height: 52px"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="design-meta">
+              <div class="design-name">Paper Desk</div>
+              <div class="design-desc">
+                温暖纸感、杂志式排版、弱化“技术压迫感”，更适合偏写作、总结、研究场景，气质明显比常规聊天壳子更耐看。
+              </div>
+              <div class="design-actions">
+                <a class="link-button" href="./paper-desk.html">打开方案</a>
+                <a class="secondary-button" href="file:///D:/AI/ClaudeDesktop/ui-designs/paper-desk.html">本地路径</a>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <div class="footer-note">
+          文件都在 `D:\AI\ClaudeDesktop\ui-designs`。如果你想继续下一步，我们可以从这三套里选一套，直接往你现在的 React/Tauri 界面里拆成真实组件。
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

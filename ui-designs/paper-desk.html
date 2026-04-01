@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paper Desk</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      :root {
+        --bg: #efe4d3;
+        --panel: rgba(255, 250, 241, 0.9);
+        --panel-strong: rgba(255, 250, 241, 0.98);
+        --line: rgba(102, 70, 34, 0.12);
+        --text: #2e2418;
+        --muted: #75624b;
+        --accent: #ca7f3f;
+        --accent-2: #e5b26f;
+        --shadow: 0 28px 70px rgba(82, 55, 18, 0.18);
+      }
+
+      body {
+        font-family: "Sitka Text", "Georgia", "PingFang SC", "Microsoft YaHei UI", serif;
+        background:
+          radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.78), transparent 16%),
+          radial-gradient(circle at 88% 16%, rgba(226, 191, 136, 0.34), transparent 18%),
+          linear-gradient(180deg, #f4eadc, #eadbc6);
+      }
+
+      .window {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.64), rgba(255, 248, 237, 0.92)),
+          repeating-linear-gradient(0deg, rgba(119, 89, 53, 0.03), rgba(119, 89, 53, 0.03) 1px, transparent 1px, transparent 28px);
+      }
+
+      .window-bar,
+      .sidebar,
+      .toolbar,
+      .hero-card,
+      .session-card,
+      .message,
+      .input-dock,
+      .stat-card,
+      .side-card,
+      .search,
+      .capsule,
+      .tool-button,
+      .input-shell {
+        background: rgba(255, 252, 246, 0.88);
+        border-color: rgba(102, 70, 34, 0.12);
+      }
+
+      .brand-badge,
+      .primary-button,
+      .send-button {
+        background: linear-gradient(135deg, #ca7f3f, #e5b26f);
+        color: #2f1f0f;
+        box-shadow: none;
+      }
+
+      .hero-title {
+        font-family: "Segoe UI Variable Display", "PingFang SC", sans-serif;
+        max-width: 12ch;
+      }
+
+      .hero-card:first-child {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(250, 242, 229, 0.9)),
+          repeating-linear-gradient(0deg, rgba(142, 106, 63, 0.04), rgba(142, 106, 63, 0.04) 1px, transparent 1px, transparent 30px);
+      }
+
+      .hero-card:last-child {
+        background: linear-gradient(180deg, rgba(255, 247, 236, 0.9), rgba(248, 238, 222, 0.96));
+      }
+
+      .orb {
+        width: min(320px, 100%);
+        height: 220px;
+        aspect-ratio: auto;
+        border-radius: 28px;
+        background:
+          linear-gradient(180deg, rgba(255, 251, 243, 0.96), rgba(244, 231, 210, 0.96)),
+          repeating-linear-gradient(90deg, rgba(163, 124, 77, 0.05), rgba(163, 124, 77, 0.05) 1px, transparent 1px, transparent 26px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .orb::before {
+        content: "Today";
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .orb::after {
+        content: "Start a focused conversation";
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 22px;
+        font-family: "Segoe UI Variable Display", "PingFang SC", sans-serif;
+        font-size: 26px;
+        line-height: 1.15;
+        font-weight: 800;
+        color: #2f2417;
+      }
+
+      .editorial {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .note-card {
+        border-radius: 20px;
+        padding: 18px;
+      }
+
+      .note-card strong {
+        display: block;
+        font-family: "Segoe UI Variable Display", "PingFang SC", sans-serif;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      .note-card span {
+        color: var(--muted);
+        line-height: 1.75;
+        font-size: 14px;
+      }
+
+      .message-row.user .message {
+        background: rgba(241, 228, 204, 0.88);
+      }
+
+      .stitch {
+        height: 12px;
+        margin: 18px 0 8px;
+        background:
+          radial-gradient(circle, rgba(145, 113, 70, 0.34) 2px, transparent 2px)
+            left center / 18px 12px repeat-x;
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="ambient">
+        <div class="blob" style="top: 40px; left: 2%; width: 260px; height: 260px; background: rgba(255, 255, 255, 0.42)"></div>
+        <div class="blob" style="bottom: 20px; right: 6%; width: 280px; height: 280px; background: rgba(214, 172, 112, 0.22)"></div>
+      </div>
+
+      <div class="window">
+        <div class="window-bar">
+          <div class="brand">
+            <div class="brand-badge">✎</div>
+            <div class="brand-copy">
+              <div class="brand-title">Paper Desk</div>
+              <div class="brand-subtitle">把 AI 聊天界面做得更像一个写作与研究工作台。</div>
+            </div>
+          </div>
+          <div class="window-actions">
+            <div class="window-pill">Writing mode</div>
+            <div class="window-pill">Focus layout</div>
+            <div class="chrome-dots">
+              <span style="background:#d58855"></span>
+              <span style="background:#e0b95f"></span>
+              <span style="background:#7fa372"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-shell">
+          <aside class="sidebar">
+            <div class="sidebar-stack">
+              <a class="primary-button" href="./index.html">✦ 开始新页</a>
+              <div class="search">⌕ 搜索对话、灵感、片段...</div>
+
+              <div class="side-card" style="padding: 16px; border-radius: 20px;">
+                <div class="section-label">
+                  <span>Recent Pages</span>
+                  <span>3</span>
+                </div>
+                <div class="session-list">
+                  <div class="session-card active">
+                    <div class="session-top">
+                      <div class="session-title">为 Claude Desktop 重做 UI</div>
+                      <div class="capsule">今日</div>
+                    </div>
+                    <div class="session-meta">
+                      <span>16 条消息</span>
+                      <span class="tiny-dot"></span>
+                      <span>持续更新</span>
+                    </div>
+                  </div>
+                  <div class="session-card">
+                    <div class="session-top">
+                      <div class="session-title">周报排版助手</div>
+                      <div class="capsule">归档</div>
+                    </div>
+                    <div class="session-meta">
+                      <span>7 条消息</span>
+                      <span class="tiny-dot"></span>
+                      <span>周三</span>
+                    </div>
+                  </div>
+                  <div class="session-card">
+                    <div class="session-top">
+                      <div class="session-title">研究摘要整理</div>
+                      <div class="capsule">草稿</div>
+                    </div>
+                    <div class="session-meta">
+                      <span>11 条消息</span>
+                      <span class="tiny-dot"></span>
+                      <span>周一</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="side-card" style="padding: 16px; border-radius: 20px;">
+                <div class="section-label">
+                  <span>Quick Prompts</span>
+                </div>
+                <div class="hero-actions" style="margin-top: 10px;">
+                  <div class="hero-chip">总结今天的讨论</div>
+                  <div class="hero-chip">把截图变成需求</div>
+                  <div class="hero-chip">写一版 PRD 草稿</div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <main class="main">
+            <div class="main-top">
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <div class="capsule strong">Focus board</div>
+                  <div class="capsule">适合写作、研究、整理复杂问题</div>
+                </div>
+                <div class="toolbar-right">
+                  <div class="capsule">自动标题</div>
+                  <div class="capsule">摘要记忆</div>
+                </div>
+              </div>
+            </div>
+
+            <section class="content">
+              <div class="hero-grid">
+                <div class="hero-card">
+                  <div class="capsule strong" style="width: fit-content;">更像写作产品，而不是命令面板</div>
+                  <div class="hero-title">让 AI 对话从“工具”变成“桌面上的工作纸”。</div>
+                  <div class="hero-copy">
+                    如果你不想要太硬核的开发者风，这套会更耐看。它保留效率，但整体更温暖、更有人味，适合研究、整理、写稿、总结，也更适合长时间阅读。
+                  </div>
+
+                  <div class="hero-actions">
+                    <div class="hero-chip">开始一个新研究主题</div>
+                    <div class="hero-chip">附上截图继续聊</div>
+                    <div class="hero-chip">生成结构化总结</div>
+                  </div>
+
+                  <div class="stitch"></div>
+
+                  <div class="editorial">
+                    <div class="note-card">
+                      <strong>读起来更轻松</strong>
+                      <span>留白更多，主文字更舒展，减少纯技术面板的压迫感。</span>
+                    </div>
+                    <div class="note-card">
+                      <strong>更适合中文内容</strong>
+                      <span>暖色和纸感纹理对长段中文阅读更友好，不会显得僵硬。</span>
+                    </div>
+                    <div class="note-card">
+                      <strong>品牌区分度更强</strong>
+                      <span>市面上多数 AI 产品都在走深色科技风，这套反而更有辨识度。</span>
+                    </div>
+                    <div class="note-card">
+                      <strong>适合知识工作场景</strong>
+                      <span>总结、分析、写提纲、写长文，都会比传统聊天壳更自然。</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="hero-card">
+                  <div class="orb"></div>
+                  <div class="stat-card" style="margin-bottom: 12px;">
+                    <div class="stat-label">推荐对象</div>
+                    <div class="stat-value">写作者 / 研究者</div>
+                    <div class="stat-sub">如果你更在意舒适感与耐读性，这套最好。</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-label">风格气质</div>
+                    <div class="stat-value">Warm Editorial</div>
+                    <div class="stat-sub">与常见“黑底 AI 面板”形成明确差异。</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="message-stack">
+                <div class="message-row">
+                  <div class="message">
+                    <div class="message-role"><span>Claude</span><strong>开始一段更专注的对话</strong></div>
+                    <p>把问题、截图、灵感或者一段凌乱的想法贴进来，我会帮你把它整理成结构、计划、文稿或者可执行的下一步。</p>
+                    <div class="bullets">
+                      <span>适合长段文本</span>
+                      <span>支持图片理解</span>
+                      <span>自动总结上下文</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="message-row user">
+                  <div class="message">
+                    <div class="message-role"><span>你</span><strong>我想让这个客户端别再像半成品</strong></div>
+                    <p>给它一点编辑器的秩序，也给它一点写作工具的温度。</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="input-dock">
+                <div class="attachment-row">
+                  <div class="attachment">📎 主界面截图</div>
+                  <div class="attachment">📝 设计想法草稿</div>
+                  <div class="attachment">☕ 当前主题：Paper Desk</div>
+                </div>
+                <div class="composer">
+                  <button class="tool-button">＋</button>
+                  <div class="input-shell">
+                    <div class="input-placeholder">
+                      写下你的问题、灵感或者任务...
+                      <br />
+                      Enter 发送，Shift+Enter 换行，也可以直接粘贴图片继续讨论。
+                    </div>
+                  </div>
+                  <button class="send-button">提交</button>
+                </div>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

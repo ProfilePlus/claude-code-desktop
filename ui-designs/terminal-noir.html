@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terminal Noir</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      :root {
+        --bg: #050909;
+        --panel: rgba(7, 12, 12, 0.94);
+        --panel-strong: rgba(6, 10, 10, 0.98);
+        --line: rgba(118, 255, 210, 0.14);
+        --text: #e7fff8;
+        --muted: #7ca59b;
+        --accent: #74ffd0;
+        --accent-2: #8ce0ff;
+        --shadow: 0 28px 80px rgba(0, 0, 0, 0.5);
+      }
+
+      body {
+        font-family: "Bahnschrift", "Segoe UI Variable Display", "PingFang SC", sans-serif;
+        background:
+          radial-gradient(circle at 18% 16%, rgba(72, 255, 190, 0.12), transparent 18%),
+          radial-gradient(circle at 80% 24%, rgba(120, 220, 255, 0.12), transparent 20%),
+          linear-gradient(180deg, #050808, #09100f);
+      }
+
+      .window,
+      .sidebar,
+      .toolbar,
+      .hero-card,
+      .session-card,
+      .message,
+      .input-dock,
+      .stat-card,
+      .side-card {
+        box-shadow: none;
+      }
+
+      .window {
+        background:
+          linear-gradient(rgba(110, 255, 212, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(110, 255, 212, 0.05) 1px, transparent 1px),
+          rgba(5, 10, 10, 0.96);
+        background-size: 22px 22px;
+      }
+
+      .window-bar,
+      .sidebar,
+      .hero-card,
+      .toolbar,
+      .message,
+      .input-dock,
+      .session-card,
+      .side-card,
+      .capsule,
+      .search,
+      .tool-button,
+      .input-shell {
+        border-color: rgba(116, 255, 208, 0.16);
+        background: rgba(5, 10, 10, 0.82);
+      }
+
+      .primary-button,
+      .send-button {
+        background: linear-gradient(135deg, #74ffd0, #8ce0ff);
+        color: #02110c;
+        box-shadow: none;
+      }
+
+      .brand-badge {
+        background: linear-gradient(135deg, #74ffd0, #8ce0ff);
+        box-shadow: none;
+      }
+
+      .orb {
+        border-radius: 32px;
+        aspect-ratio: auto;
+        height: 220px;
+        background:
+          radial-gradient(circle at 18% 30%, rgba(116, 255, 208, 0.6), transparent 12%),
+          radial-gradient(circle at 78% 24%, rgba(140, 224, 255, 0.34), transparent 18%),
+          linear-gradient(180deg, rgba(9, 18, 18, 0.96), rgba(5, 10, 10, 0.96));
+        box-shadow: inset 0 0 0 1px rgba(116, 255, 208, 0.14);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .orb::before,
+      .orb::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(90deg, transparent 0, rgba(116, 255, 208, 0.08) 50%, transparent 100%);
+      }
+
+      .orb::after {
+        background:
+          linear-gradient(0deg, transparent 0, rgba(140, 224, 255, 0.08) 50%, transparent 100%);
+      }
+
+      .hero-title,
+      .stat-value,
+      .design-name {
+        font-family: "Cascadia Code", "Bahnschrift", monospace;
+      }
+
+      .hero-title {
+        max-width: 12ch;
+      }
+
+      .log-lines {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .log-line {
+        display: flex;
+        gap: 12px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .log-line strong {
+        color: var(--accent);
+        min-width: 96px;
+      }
+
+      .message-row.user .message {
+        background: rgba(8, 20, 18, 0.88);
+      }
+
+      .status-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .status-item {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(116, 255, 208, 0.12);
+        background: rgba(5, 10, 10, 0.7);
+      }
+
+      .status-item strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .status-item span {
+        color: var(--muted);
+        line-height: 1.65;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="ambient">
+        <div class="blob" style="top: 50px; left: 6%; width: 260px; height: 260px; background: rgba(116, 255, 208, 0.08)"></div>
+        <div class="blob" style="top: 140px; right: 5%; width: 260px; height: 260px; background: rgba(140, 224, 255, 0.06)"></div>
+      </div>
+
+      <div class="window">
+        <div class="window-bar">
+          <div class="brand">
+            <div class="brand-badge">&gt;_</div>
+            <div class="brand-copy">
+              <div class="brand-title">Terminal Noir</div>
+              <div class="brand-subtitle">更像一个严肃的本地工作客户端，而不是聊天网页。</div>
+            </div>
+          </div>
+          <div class="window-actions">
+            <div class="window-pill">Local runtime</div>
+            <div class="window-pill">Session sync</div>
+            <div class="chrome-dots">
+              <span style="background:#ff8c7a"></span>
+              <span style="background:#f9da6a"></span>
+              <span style="background:#74ffd0"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-shell">
+          <aside class="sidebar">
+            <div class="sidebar-stack">
+              <a class="primary-button" href="./index.html">[N] 新建任务</a>
+              <div class="search">/ 搜索会话、命令、片段</div>
+
+              <div class="side-card" style="padding: 16px; border-radius: 20px;">
+                <div class="section-label">
+                  <span>Sessions</span>
+                  <span>14</span>
+                </div>
+                <div class="session-list">
+                  <div class="session-card active">
+                    <div class="session-top">
+                      <div class="session-title">ui/redesign.desktop</div>
+                      <div class="capsule">LIVE</div>
+                    </div>
+                    <div class="session-meta">
+                      <span>streaming</span>
+                      <span class="tiny-dot"></span>
+                      <span>11m</span>
+                    </div>
+                  </div>
+                  <div class="session-card">
+                    <div class="session-top">
+                      <div class="session-title">bugfix/tailwind.theme</div>
+                      <div class="capsule">OK</div>
+                    </div>
+                    <div class="session-meta">
+                      <span>8 replies</span>
+                      <span class="tiny-dot"></span>
+                      <span>yesterday</span>
+                    </div>
+                  </div>
+                  <div class="session-card">
+                    <div class="session-top">
+                      <div class="session-title">notes/research-flow</div>
+                      <div class="capsule">IDLE</div>
+                    </div>
+                    <div class="session-meta">
+                      <span>5 items</span>
+                      <span class="tiny-dot"></span>
+                      <span>Fri</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="side-card" style="padding: 16px; border-radius: 20px;">
+                <div class="section-label">
+                  <span>Shortcuts</span>
+                </div>
+                <div class="hero-actions" style="margin-top: 10px;">
+                  <div class="hero-chip">Ctrl+N 新会话</div>
+                  <div class="hero-chip">Ctrl+K 快速搜索</div>
+                  <div class="hero-chip">Ctrl+, 打开设置</div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <main class="main">
+            <div class="main-top">
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <div class="capsule strong">workspace://ClaudeDesktop</div>
+                  <div class="capsule">branch / codex/ui-redesign</div>
+                </div>
+                <div class="toolbar-right">
+                  <div class="capsule">latency 148ms</div>
+                  <div class="capsule">memory stable</div>
+                  <div class="capsule">vision ready</div>
+                </div>
+              </div>
+            </div>
+
+            <section class="content">
+              <div class="hero-grid">
+                <div class="hero-card">
+                  <div class="capsule strong" style="width: fit-content;">[ interface ] / developer-first / dense / sharp</div>
+                  <div class="hero-title">让桌面端像一台正在工作的机器。</div>
+                  <div class="hero-copy">
+                    这套不是追求“梦幻”，而是追求可信的专业感。你打开它，会觉得这里适合持续写、持续调、持续切会话。它继承编辑器和终端的秩序感，但比传统 IDE 更现代。
+                  </div>
+
+                  <div class="hero-actions">
+                    <div class="hero-chip">[run] 发送消息</div>
+                    <div class="hero-chip">[attach] 加入图片</div>
+                    <div class="hero-chip">[resume] 恢复上下文</div>
+                  </div>
+
+                  <div class="hero-note">
+                    <div class="stat-card">
+                      <div class="stat-label">定位</div>
+                      <div class="stat-value">Power User UI</div>
+                      <div class="stat-sub">适合代码、调试、长会话。</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-label">改造收益</div>
+                      <div class="stat-value">信息更清楚</div>
+                      <div class="stat-sub">状态、快捷键、运行感更统一。</div>
+                    </div>
+                  </div>
+
+                  <div class="log-lines">
+                    <div class="log-line"><strong>[why]</strong><span>输入区被做成命令台，而不是普通聊天框。</span></div>
+                    <div class="log-line"><strong>[focus]</strong><span>当前会话、状态胶囊、流式响应都更容易扫描。</span></div>
+                    <div class="log-line"><strong>[tone]</strong><span>减少“社交产品”感，增强工具产品可信度。</span></div>
+                  </div>
+                </div>
+
+                <div class="hero-card">
+                  <div class="orb"></div>
+                  <div class="status-list">
+                    <div class="status-item">
+                      <strong>推荐对象</strong>
+                      <span>开发者、运维、技术作者，以及长时间盯着客户端工作的人。</span>
+                    </div>
+                    <div class="status-item">
+                      <strong>落地顺序</strong>
+                      <span>先改色板与窗口栏，再做侧栏密度和输入区，最后补充状态系统与动效。</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="message-stack">
+                <div class="message-row">
+                  <div class="message">
+                    <div class="message-role"><span>assistant</span><strong>system ready</strong></div>
+                    <p>当前项目已载入。你可以粘贴截图、拖入图片、追加代码片段，或者直接描述你要的布局和风格，我会在同一个工作流里继续往下做。</p>
+                    <div class="bullets">
+                      <span>streaming on</span>
+                      <span>attachments enabled</span>
+                      <span>workspace context loaded</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="message-row user">
+                  <div class="message">
+                    <div class="message-role"><span>user</span><strong>need a real desktop-grade interface</strong></div>
+                    <p>不要再像临时网页，给我一个更像工程工具、可以长期使用的桌面客户端气质。</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="input-dock">
+                <div class="attachment-row">
+                  <div class="attachment">[img] claude-home.png</div>
+                  <div class="attachment">[ctx] ui-design-brief.md</div>
+                  <div class="attachment">[mode] terminal-noir</div>
+                </div>
+                <div class="composer">
+                  <button class="tool-button">+</button>
+                  <div class="input-shell">
+                    <div class="input-placeholder">
+                      输入命令或消息...
+                      <br />
+                      Enter 发送 / Shift+Enter 换行 / Ctrl+V 粘贴图片
+                    </div>
+                  </div>
+                  <button class="send-button">Run</button>
+                </div>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

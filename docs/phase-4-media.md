@@ -1,33 +1,29 @@
-# Phase 4: 多模态与配置（2-3 天）
+# Phase 4: 媒体输入（1 天）
 
 ## 目标
-支持图片输入、配置管理、主题切换。
+支持图片上传和发送，实现多模态对话。
 
 ## 任务清单
-1. 剪贴板图片粘贴（Ctrl+V）
-2. 文件拖拽上传图片
-3. 图片预览和删除
-4. 设置面板：API 密钥、Base URL、模型选择
-5. 配置文件读写（`~/.claude/settings.json`）
-6. 主题切换（亮色/暗色/跟随系统）
-7. 字体大小调节
+1. 前端添加图片选择按钮
+2. 图片预览功能
+3. Rust 侧支持图片 base64 编码
+4. 修改 bridge.rs 支持 image content block
+5. 前端消息显示支持图片
 
 ## 涉及文件
-- 新建: `src-tauri/src/commands/clipboard.rs`（剪贴板命令）
-- 新建: `src-tauri/src/config/settings.rs`（配置读写）
-- 新建: `src/components/settings/SettingsPanel.tsx`（设置面板）
-- 新建: `src/components/settings/McpConfig.tsx`（MCP 配置）
-- 新建: `src/stores/settingsStore.ts`（设置状态）
-- 完善: `src/components/chat/InputArea.tsx`（图片预览）
+- 修改: `src-tauri/src/process/bridge.rs`（支持图片输入）
+- 修改: `src/components/chat/ChatView.tsx`（图片选择和预览）
+- 修改: `src/stores/chatStore.ts`（消息支持图片）
+- 新建: `src-tauri/src/utils/image.rs`（图片处理工具）
 
 ## 验收标准
-- [ ] Ctrl+V 可粘贴图片并预览
-- [ ] 拖拽图片文件可上传
-- [ ] 设置面板可读写配置
-- [ ] 主题切换正常工作
-- [ ] 字体大小可调节
+- [ ] 可以选择本地图片
+- [ ] 图片有预览显示
+- [ ] 发送图片后 Claude 能识别并回复
+- [ ] 消息列表正确显示图片
 
 ## 技术要点
-- 使用 `arboard` crate 读取剪贴板
-- 图片 base64 编码注入 stream-json
-- 读写 `~/.claude/settings.json` 和 `~/.claude.json`
+- CLI 图片输入格式：`{"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": "..."}}`
+- 支持的图片格式：JPEG, PNG, GIF, WebP
+- 图片需要 base64 编码
+- 注意：使用第三方 API 代理时图片功能可能受限

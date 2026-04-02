@@ -34,7 +34,7 @@ function App() {
       return null;
     }
   }, []);
-  const { toasts, removeToast, addSession } = useChatStore();
+  const { toasts, removeToast, addToast, addSession } = useChatStore();
   const { settings } = useSettingsStore();
   const [showSettings, setShowSettings] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -129,16 +129,24 @@ function App() {
     e.stopPropagation();
 
     const actionId = ++windowActionSeqRef.current;
+    const clickTimestamp = Date.now();
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+
+    console.log(`[window:click] ⏱️ 点击时间: ${new Date().toISOString()} | action=${action} | coords=(${e.clientX}, ${e.clientY}) | targetRect=(${rect.x.toFixed(0)}, ${rect.y.toFixed(0)})`);
+
     emitWindowLog("action:pointerdown", {
       actionId,
       action,
-      button: e.button,
-      detail: e.detail,
-      maximizedSnapshot: windowMaximized,
+      clickTimestamp,
+      clientX: e.clientX,
+      clientY: e.clientY,
+      targetRect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+      isTrusted: e.isTrusted,
     });
 
     if (!appWindow) {
       emitWindowLog("action:skipped", { actionId, action, cause: "no-app-window" });
+      addToast(`[${action}] 失败: appWindow 为空`, "error");
       return;
     }
 
@@ -150,6 +158,7 @@ function App() {
         inFlightId: inFlight.id,
         inFlightAction: inFlight.action,
       });
+      addToast(`[${action}] 被忽略: 已有操作进行中 (${inFlight.action})`, "error");
       return;
     }
 
@@ -161,19 +170,23 @@ function App() {
         emitWindowLog("action:api:start", { actionId, action });
         try {
           await appWindow.close();
+          const totalMs = Number((performance.now() - actionStartedAt).toFixed(2));
+          console.log(`[window:done] ✅ 完成时间: ${new Date().toISOString()} | action=close | 总耗时=${totalMs}ms`);
           emitWindowLog("action:api:done", {
             actionId,
             action,
-            durationMs: Number((performance.now() - actionStartedAt).toFixed(2)),
+            durationMs: totalMs,
           });
         } catch {
           // Some environments are stricter on close; fallback to destroy.
           emitWindowLog("action:api:fallback", { actionId, action, fallback: "destroy" });
           await appWindow.destroy();
+          const totalMs = Number((performance.now() - actionStartedAt).toFixed(2));
+          console.log(`[window:done] ✅ 完成时间: ${new Date().toISOString()} | action=destroy(fallback) | 总耗时=${totalMs}ms`);
           emitWindowLog("action:api:done", {
             actionId,
             action: "destroy",
-            durationMs: Number((performance.now() - actionStartedAt).toFixed(2)),
+            durationMs: totalMs,
           });
         }
         return;
@@ -182,10 +195,12 @@ function App() {
       if (action === "minimize") {
         emitWindowLog("action:api:start", { actionId, action });
         await appWindow.minimize();
+        const totalMs = Number((performance.now() - actionStartedAt).toFixed(2));
+        console.log(`[window:done] ✅ 完成时间: ${new Date().toISOString()} | action=minimize | 总耗时=${totalMs}ms`);
         emitWindowLog("action:api:done", {
           actionId,
           action,
-          durationMs: Number((performance.now() - actionStartedAt).toFixed(2)),
+          durationMs: totalMs,
         });
         return;
       }
@@ -215,12 +230,17 @@ function App() {
       });
 
       const maximized = await syncWindowState(`post-${nativeAction}`);
+      const totalMs = Number((performance.now() - actionStartedAt).toFixed(2));
+      const doneTimestamp = Date.now();
+      console.log(`[window:done] ✅ 完成时间: ${new Date().toISOString()} | action=${action} | 总耗时=${totalMs}ms | 完成时状态: maximized=${maximized}`);
+
       emitWindowLog("action:done", {
         actionId,
         action,
         nativeAction,
         maximized,
-        totalDurationMs: Number((performance.now() - actionStartedAt).toFixed(2)),
+        totalDurationMs: totalMs,
+        doneTimestamp,
       });
     } catch (error) {
       emitWindowLog("action:error", {
@@ -244,8 +264,6 @@ function App() {
 
       <div className="glasschat-window">
         <header className="glasschat-titlebar">
-          <div className="glasschat-titlebar-drag-zone" data-tauri-drag-region />
-
           <div className="glasschat-titlebar-left">
             <button
               type="button"
@@ -267,7 +285,7 @@ function App() {
             />
           </div>
 
-          <div className="glasschat-drag-region">
+          <div className="glasschat-drag-region" data-tauri-drag-region>
             <GlassChatWordmark />
           </div>
 

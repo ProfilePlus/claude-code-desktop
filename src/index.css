@@ -2798,6 +2798,12 @@ kbd {
   justify-content: center;
   align-items: center;
   min-width: 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.glasschat-drag-region:active {
+  cursor: grabbing;
 }
 
 .traffic-light {
@@ -2807,6 +2813,18 @@ kbd {
   height: 14px;
   padding: 0;
   margin: 0 1px;
+}
+
+/* 透明伪元素扩大点击区域，视觉上不可见 */
+.traffic-light::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  background: transparent;
+  z-index: 10;
 }
 
 .traffic-light::after {

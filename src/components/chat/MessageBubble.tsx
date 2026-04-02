@@ -15,7 +15,7 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ msg, onEdit, onDelete, onRegenerate }: MessageBubbleProps) {
   const isUser = msg.role === "user";
-  const { menu, showMenu, hideMenu } = useContextMenu();
+  const { menu, hideMenu } = useContextMenu();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(msg.content);
@@ -35,14 +35,15 @@ export function MessageBubble({ msg, onEdit, onDelete, onRegenerate }: MessageBu
 
   return (
     <>
-      <div className={`message-row ${isUser ? "message-row-user" : ""} animate-message-slide-in`}>
-        {!isUser && <div className="message-avatar message-avatar-assistant">CL</div>}
-        <div onContextMenu={showMenu} className="message-stack">
-          <div className={`message-meta ${isUser ? "message-meta-user" : ""}`}>
-            <span>{isUser ? "You" : "Claude"}</span>
-            <span className="message-dot"></span>
-            <span>{msg.error ? "错误" : msg.streaming ? "处理中" : "完成"}</span>
+      <div className={`message ${isUser ? "message-outgoing" : "message-incoming"} animate-message-slide-in`}>
+        {!isUser && (
+          <div className="message-avatar ai">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 6C13.66 6 15 7.34 15 9C15 10.66 13.66 12 12 12C10.34 12 9 10.66 9 9C9 7.34 10.34 6 12 6ZM12 20C9.67 20 7.53 18.83 6.26 16.95C6.74 14.97 8.94 14 12 14C15.06 14 17.26 14.97 17.74 16.95C16.47 18.83 14.33 20 12 20Z"></path>
+            </svg>
           </div>
+        )}
+        <div className="message-content">
           <div
             className={`message-bubble ${
               isUser
@@ -53,7 +54,7 @@ export function MessageBubble({ msg, onEdit, onDelete, onRegenerate }: MessageBu
             }`}
           >
             {isUser ? (
-              <div className="message-body message-body-user">
+              <>
                 {msg.images && msg.images.length > 0 && (
                   <div className="uploaded-image-grid">
                     {msg.images.map((img, idx) => (
@@ -68,9 +69,9 @@ export function MessageBubble({ msg, onEdit, onDelete, onRegenerate }: MessageBu
                   </div>
                 )}
                 {msg.content}
-              </div>
+              </>
             ) : (
-              <div className="message-body assistant-markdown">
+              <>
                 {msg.streaming && !msg.content.trim() ? (
                   <div className="message-streaming-loader">
                     <DotsLoader />
@@ -80,14 +81,14 @@ export function MessageBubble({ msg, onEdit, onDelete, onRegenerate }: MessageBu
                     {msg.content}
                   </ReactMarkdown>
                 )}
-              </div>
+              </>
             )}
           </div>
-          <div className={`message-time ${isUser ? "message-time-user" : ""}`}>
+          <div className="message-time">
             下午 {isUser ? "2:18" : "2:16"}
           </div>
         </div>
-        {isUser && <div className="message-avatar message-avatar-user">AL</div>}
+        {isUser && <div className="message-avatar me">AL</div>}
       </div>
 
       {menu.visible && <MessageMenu x={menu.x} y={menu.y} options={menuOptions} onClose={hideMenu} />}

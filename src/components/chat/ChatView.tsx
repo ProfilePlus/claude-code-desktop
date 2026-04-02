@@ -7,8 +7,8 @@ import { EmptyChat } from "../common/EmptyState";
 import { ChatInput } from "./ChatInput";
 
 export function ChatView({
-  sidebarCollapsed,
-  onToggleSidebar,
+  sidebarCollapsed: _sidebarCollapsed,
+  onToggleSidebar: _onToggleSidebar,
 }: {
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
@@ -363,67 +363,53 @@ export function ChatView({
   };
 
   return (
-    <main className="desktop-main glasschat-main">
-      <div className="glasschat-stage-toolbar">
-        <button
-          className="header-icon-button header-sidebar-button"
-          onClick={onToggleSidebar}
-          title={sidebarCollapsed ? "展开侧栏" : "折叠侧栏"}
-        >
-          {sidebarCollapsed ? "☰" : "≡"}
-        </button>
-      </div>
-      <div className="chat-scroll">
-        <div className="chat-scroll-inner">
-          {!activeSessionId || messages.length === 0 ? (
-            <div className="empty-board glasschat-empty-board">
-              <EmptyChat onNewSession={handleNewSession} />
-            </div>
-          ) : (
-            <div className="message-list glasschat-message-list">
-              {messages.map((msg) =>
-                editingId === msg.id ? (
-                  <div key={msg.id} className="message-editor animate-scale-in">
-                    <textarea
-                      value={editText}
-                      onChange={(e) => setEditText(e.target.value)}
-                      autoFocus
-                    />
-                    <div className="message-editor-actions">
-                      <button
-                        onClick={() => {
-                          handleSend(editText, msg.images);
-                          setEditingId(null);
-                        }}
-                        className="primary-action"
-                      >
-                        重新发送
-                      </button>
-                      <button onClick={() => setEditingId(null)} className="secondary-action">
-                        取消
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <MessageBubble
-                    key={msg.id}
-                    msg={msg}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onRegenerate={handleRegenerate}
+    <div className="chat-view">
+      <div className="messages-list">
+        {!activeSessionId || messages.length === 0 ? (
+          <div className="empty-board">
+            <EmptyChat onNewSession={handleNewSession} />
+          </div>
+        ) : (
+          <>
+            {messages.map((msg) =>
+              editingId === msg.id ? (
+                <div key={msg.id} className="message-editor animate-scale-in">
+                  <textarea
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    autoFocus
                   />
-                )
-              )}
-
-              <div ref={bottomRef} />
-            </div>
-          )}
-        </div>
+                  <div className="message-editor-actions">
+                    <button
+                      onClick={() => {
+                        handleSend(editText, msg.images);
+                        setEditingId(null);
+                      }}
+                      className="primary-action"
+                    >
+                      重新发送
+                    </button>
+                    <button onClick={() => setEditingId(null)} className="secondary-action">
+                      取消
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <MessageBubble
+                  key={msg.id}
+                  msg={msg}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onRegenerate={handleRegenerate}
+                />
+              )
+            )}
+            <div ref={bottomRef} />
+          </>
+        )}
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-[999] flex justify-center px-5">
-        <ChatInput onSend={handleSend} disabled={loading} onStop={handleStopGeneration} />
-      </div>
-    </main>
+      <ChatInput onSend={handleSend} disabled={loading} onStop={handleStopGeneration} />
+    </div>
   );
 }

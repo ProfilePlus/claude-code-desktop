@@ -9,23 +9,6 @@ import { useChatStore } from "./stores/chatStore";
 import { useSettingsStore } from "./stores/settingsStore";
 import { useKeyboard } from "./hooks/useKeyboard";
 
-function GlassChatWordmark() {
-  return (
-    <div className="glasschat-brand" data-tauri-drag-region>
-      <svg className="glasschat-brand-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M12 2.8l1.34 4.46L17.8 8.6l-4.46 1.34L12 14.4l-1.34-4.46L6.2 8.6l4.46-1.34L12 2.8zm6.2 8.9l.82 2.73 2.73.82-2.73.82-.82 2.73-.82-2.73-2.73-.82 2.73-.82.82-2.73zM5.3 14.9l.96 3.18 3.18.96-3.18.96-.96 3.18-.96-3.18-3.18-.96 3.18-.96.96-3.18z"
-          fill="currentColor"
-        />
-      </svg>
-      <div className="glasschat-brand-copy">
-        <strong>GlassChat</strong>
-        <span>Elevated Composer</span>
-      </div>
-    </div>
-  );
-}
-
 function App() {
   const appWindow = useMemo(() => {
     try {
@@ -258,70 +241,96 @@ function App() {
   };
 
   return (
-    <div className={`app-frame glasschat-shell ${windowMaximized ? "app-frame-maximized" : ""}`}>
-      <div className="glasschat-ambient glasschat-ambient-left" aria-hidden="true"></div>
-      <div className="glasschat-ambient glasschat-ambient-right" aria-hidden="true"></div>
-
-      <div className="glasschat-window">
-        <header className="glasschat-titlebar">
-          <div className="glasschat-titlebar-left">
-            <button
-              type="button"
-              className="traffic-light traffic-light-close"
-              aria-label="关闭窗口"
-              onMouseDown={(e) => handleWindowAction(e, "close")}
+    <div className="app-frame">
+      <div className="chat-window">
+        <div className="chat-container">
+          {/* 左侧边栏 */}
+          <aside className={`sidebar ${sidebarCollapsed ? "hidden" : ""}`}>
+            <SessionList
+              collapsed={sidebarCollapsed}
+              onOpenSettings={() => setShowSettings(true)}
             />
-            <button
-              type="button"
-              className="traffic-light traffic-light-minimize"
-              aria-label="最小化窗口"
-              onMouseDown={(e) => handleWindowAction(e, "minimize")}
-            />
-            <button
-              type="button"
-              className="traffic-light traffic-light-maximize"
-              aria-label={windowMaximized ? "还原窗口" : "最大化窗口"}
-              onMouseDown={(e) => handleWindowAction(e, "toggleMaximize")}
-            />
-          </div>
+          </aside>
 
-          <div className="glasschat-drag-region" data-tauri-drag-region>
-            <GlassChatWordmark />
-          </div>
+          {/* 右侧容器 */}
+          <div className="right-container">
+            {/* 顶部标题栏 */}
+            <header className="window-header">
+              <div className="traffic-lights">
+                <button
+                  type="button"
+                  className="traffic-light traffic-light-close"
+                  aria-label="关闭窗口"
+                  onMouseDown={(e) => handleWindowAction(e, "close")}
+                />
+                <button
+                  type="button"
+                  className="traffic-light traffic-light-minimize"
+                  aria-label="最小化窗口"
+                  onMouseDown={(e) => handleWindowAction(e, "minimize")}
+                />
+                <button
+                  type="button"
+                  className="traffic-light traffic-light-maximize"
+                  aria-label={windowMaximized ? "还原窗口" : "最大化窗口"}
+                  onMouseDown={(e) => handleWindowAction(e, "toggleMaximize")}
+                />
+              </div>
 
-          <div className="glasschat-titlebar-right">
-            <button
-              className="glasschat-titlebar-icon"
-              onClick={() => {
-                const input = document.querySelector("[data-sidebar-search]") as HTMLInputElement | null;
-                input?.focus();
-              }}
-              title="搜索对话"
-              aria-label="搜索对话"
-            >
-              ⌕
-            </button>
-            <button
-              className="glasschat-avatar-button"
-              title="打开设置"
-              aria-label="打开设置"
-              onClick={() => setShowSettings(true)}
-            >
-              <span>AL</span>
-            </button>
-          </div>
-        </header>
+              <button
+                className="column-view-btn"
+                onClick={() => setSidebarCollapsed((current) => !current)}
+                title={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"}
+                aria-label="切换侧边栏"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+              </button>
 
-        <section className={`glasschat-workspace ${sidebarCollapsed ? "glasschat-workspace-collapsed" : ""}`}>
-          <SessionList
-            collapsed={sidebarCollapsed}
-            onOpenSettings={() => setShowSettings(true)}
-          />
-          <ChatView
-            sidebarCollapsed={sidebarCollapsed}
-            onToggleSidebar={() => setSidebarCollapsed((current) => !current)}
-          />
-        </section>
+              <div className="window-title">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21L12 17.77L5.82 21L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                </svg>
+                GlassChat
+              </div>
+
+              <div className="header-actions">
+                <button
+                  className="header-btn"
+                  onClick={() => {
+                    const input = document.querySelector("[data-sidebar-search]") as HTMLInputElement | null;
+                    input?.focus();
+                  }}
+                  title="搜索对话"
+                  aria-label="搜索对话"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                </button>
+                <button
+                  className="avatar"
+                  title="打开设置"
+                  aria-label="打开设置"
+                  onClick={() => setShowSettings(true)}
+                >
+                  AL
+                </button>
+              </div>
+            </header>
+
+            {/* 聊天主区域 */}
+            <div className="chat-main">
+              <ChatView
+                sidebarCollapsed={sidebarCollapsed}
+                onToggleSidebar={() => setSidebarCollapsed((current) => !current)}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}

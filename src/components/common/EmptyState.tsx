@@ -47,10 +47,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
 export const EmptyChat: React.FC<{ onNewSession?: () => void }> = ({ onNewSession }) => {
   return (
-    <div className="empty-chat-minimal">
-      <h2 className="empty-chat-minimal-title">开始新的对话</h2>
+    <div className="empty-chat">
+      <h2 className="empty-chat-title">开始新的对话</h2>
       {onNewSession && (
-        <button onClick={onNewSession} className="primary-action mt-4">
+        <button onClick={onNewSession} className="primary-action">
           新建会话
         </button>
       )}

@@ -1,0 +1,60 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - button "关闭窗口" [ref=e7] [cursor=pointer]: ×
+      - button "最小化窗口" [ref=e8] [cursor=pointer]: –
+      - button "最大化窗口" [ref=e9] [cursor=pointer]: +
+    - generic [ref=e11]:
+      - img [ref=e12]
+      - generic [ref=e14]:
+        - strong [ref=e15]: GlassChat
+        - generic [ref=e16]: Elevated Composer
+    - generic [ref=e17]:
+      - button "搜索对话" [ref=e18] [cursor=pointer]: ⌕
+      - button "打开设置" [ref=e19] [cursor=pointer]: AL
+  - generic [ref=e20]:
+    - complementary [ref=e21]:
+      - generic [ref=e22]:
+        - button "＋ 新对话 (New Chat)" [ref=e23] [cursor=pointer]:
+          - generic [ref=e24]: ＋
+          - generic [ref=e25]: 新对话 (New Chat)
+        - generic [ref=e26]:
+          - generic [ref=e27]: 能力入口 (MODULES)
+          - generic [ref=e28]:
+            - button "▢ Skills（预留）" [ref=e29] [cursor=pointer]:
+              - generic [ref=e30]: ▢
+              - generic [ref=e31]: Skills（预留）
+            - button "▢ MCP（预留）" [ref=e32] [cursor=pointer]:
+              - generic [ref=e33]: ▢
+              - generic [ref=e34]: MCP（预留）
+        - generic [ref=e35]:
+          - generic [ref=e36]: ⌕
+          - textbox "⌕" [ref=e37]:
+            - /placeholder: 搜索对话
+        - generic [ref=e39]: 最近对话 (RECENT)
+      - generic [ref=e41]:
+        - generic [ref=e42]: Made with Visily
+        - button "⚙ 设置" [ref=e44] [cursor=pointer]:
+          - generic [ref=e45]: ⚙
+          - generic [ref=e46]: 设置
+    - main [ref=e47]:
+      - button "≡" [ref=e49] [cursor=pointer]
+      - generic [ref=e53]:
+        - heading "开始新的对话" [level=2] [ref=e54]
+        - button "新建会话" [ref=e55] [cursor=pointer]
+      - generic [ref=e57]:
+        - button "选择模型" [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+          - generic [ref=e62]: Opus 4.6
+          - generic [ref=e63]: ▼
+        - generic [ref=e65]:
+          - button "上传文件" [ref=e66] [cursor=pointer]:
+            - img [ref=e67]
+          - generic [ref=e69]:
+            - textbox "消息输入框" [ref=e70]:
+              - /placeholder: 输入消息，或输入 / 唤起快捷指令...
+            - button "发送消息" [disabled] [ref=e71]:
+              - img [ref=e72]
+        - generic [ref=e74]:
+          - generic [ref=e75]: 自动检测 (ZH) 使用 ⇧+Enter 发送
+          - generic [ref=e76]: 系统就绪

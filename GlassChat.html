@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassChat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+        }
+
+        body {
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        :root {
+            --win-bg: #0F1117;
+            --sidebar-bg: #13161C;
+            --bubble-ai: #1E2128;
+            --bubble-me: #627AFF;
+            --border: rgba(255,255,255,0.07);
+            --text-main: #E8E9ED;
+            --text-sub: #9AA1A7;
+            --text-placeholder: #6B7280;
+            --active: rgba(98,122,255,0.15);
+            --active-color: #627AFF;
+            --traffic-red: #FF5F57;
+            --traffic-yellow: #FFBD2E;
+            --traffic-green: #28CA42;
+        }
+
+        /* 主窗口容器 macOS风格 */
+        .chat-window {
+            width: 1440px;
+            height: 900px;
+            background-color: var(--win-bg);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 主内容容器 - 左右分栏结构 */
+        .chat-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* 右侧容器 - 包含标题栏+聊天区 */
+        .right-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 顶部窗口标题栏 - 仅在右侧区域，不覆盖侧边栏 */
+        .window-header {
+            height: 46px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 18px;
+            flex-shrink: 0;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* 交通灯按钮 - macOS原生样式 */
+        .traffic-lights {
+            display: flex;
+            gap: 7px;
+        }
+        .light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .light.red { background-color: var(--traffic-red); }
+        .light.yellow { background-color: var(--traffic-yellow); }
+        .light.green { background-color: var(--traffic-green); }
+
+        /* 分栏视图切换按钮 - 替换汉堡菜单，macOS原生列视图图标 */
+        .column-view-btn {
+            background: none;
+            border: none;
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            color: var(--text-sub);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .column-view-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--text-main);
+        }
+        .column-view-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* 标题居中 */
+        .window-title {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-sub);
+            font-size: 13.5px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .window-title svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        /* 右侧操作区 */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-left: auto;
+        }
+        .header-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: default;
+            width: 20px;
+            height: 20px;
+            display: grid;
+            place-items: center;
+        }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #627AFF;
+            overflow: hidden;
+        }
+
+        /* 左侧侧边栏 - 独立区域，高度100% */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        /* 侧边栏隐藏样式 */
+        .sidebar.hidden {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+            border: none;
+        }
+
+        /* 侧边栏顶部：新对话按钮 - 大圆角胶囊+强毛玻璃 */
+        .new-chat-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: var(--text-main);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: default;
+            transition: all 0.2s ease;
+            margin-bottom: 24px;
+            width: 100%;
+        }
+        .new-chat-btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+        .new-chat-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 侧边栏固定菜单项：技能、应用、自动化 */
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 12px;
+            border-radius: 12px;
+            color: var(--text-sub);
+            font-size: 14px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+        .sidebar-item.active {
+            background: var(--active);
+            color: var(--active-color);
+            font-weight: 500;
+        }
+        .sidebar-item.active svg {
+            stroke: var(--active-color);
+        }
+        .sidebar-item svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            stroke: currentColor;
+        }
+
+        /* 最近对话分组 */
+        .sidebar-section {
+            margin-top: 24px;
+        }
+        .section-title {
+            font-size: 12px;
+            color: var(--text-sub);
+            letter-spacing: 0.8px;
+            padding: 0 8px 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        /* 侧边栏底部 */
+        .sidebar-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 8px;
+            border-top: 1px solid var(--border);
+        }
+        .footer-btn {
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            color: var(--text-sub);
+            cursor: default;
+        }
+        .footer-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* 右侧聊天主区域 */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0 64px;
+            position: relative;
+        }
+
+        /* 消息列表区域 */
+        .messages-list {
+            flex: 1;
+            padding: 32px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: auto;
+        }
+
+        /* 滚动条美化 */
+        .messages-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .messages-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .messages-list::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        /* 消息通用样式 */
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+        }
+        .message-outgoing {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message-incoming {
+            align-self: flex-start;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            color: #fff;
+        }
+        .message-avatar.ai {
+            background: #4A90E2;
+        }
+        .message-avatar.me {
+            background: #627AFF;
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .message-bubble {
+            padding: 14px 18px;
+            border-radius: 18px;
+            line-height: 1.55;
+            font-size: 15px;
+            word-break: break-word;
+            color: var(--text-main);
+        }
+        .message-outgoing .message-bubble {
+            background-color: var(--bubble-me);
+            color: #fff;
+            border-bottom-right-radius: 5px;
+        }
+        .message-incoming .message-bubble {
+            background-color: var(--bubble-ai);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 5px;
+        }
+        .message-time {
+            font-size: 12px;
+            color: var(--text-sub);
+            padding: 0 4px;
+        }
+        .message-outgoing .message-time {
+            align-self: flex-end;
+        }
+
+        .message-bubble ol {
+            margin: 10px 0 10px 22px;
+        }
+        .message-bubble li {
+            margin-bottom: 8px;
+        }
+        .message-bubble strong {
+            font-weight: 600;
+        }
+
+        /* 输入区域 */
+        .input-area {
+            padding: 0 0 28px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-sub);
+            font-size: 14px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .model-selector svg {
+            width: 18px;
+            height: 18px;
+        }
+        .float-add {
+            position: absolute;
+            top: -16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bubble-me);
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            display: grid;
+            place-items: center;
+            cursor: default;
+            z-index: 10;
+        }
+        .input-wrap {
+            background: var(--bubble-ai);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+        }
+        .attach-btn {
+            background: none;
+            border: none;
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            color: var(--text-sub);
+            flex-shrink: 0;
+        }
+        #message-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 15px;
+            resize: none;
+            min-height: 24px;
+            max-height: 200px;
+        }
+        #message-input::placeholder {
+            color: var(--text-placeholder);
+        }
+        .input-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .input-hint {
+            font-size: 12px;
+            color: var(--text-placeholder);
+        }
+        .input-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .input-btn {
+            background: none;
+            border: none;
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            color: var(--text-sub);
+            cursor: default;
+        }
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bubble-me);
+            border: none;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            flex-shrink: 0;
+            cursor: default;
+        }
+        .send-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+        .disclaimer {
+            margin-top: 8px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-placeholder);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-window">
+        <div class="chat-container">
+            <!-- 左侧侧边栏（最终修正版） -->
+            <aside class="sidebar">
+                <!-- 新对话按钮（已删除多余+号） -->
+                <button class="new-chat-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    新对话 (New Chat)
+                </button>
+
+                <!-- 技能、应用、自动化 -->
+                <div class="sidebar-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    技能
+                </div>
+                <div class="sidebar-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    应用
+                </div>
+                <div class="sidebar-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    自动化
+                </div>
+
+                <!-- 最近对话（原型内容+时钟图标） -->
+                <div class="sidebar-section">
+                    <div class="section-title">最近对话 (RECENT)</div>
+                    <div class="sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        React 状态管理讨论
+                    </div>
+                    <div class="sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Tauri 应用性能优化
+                    </div>
+                </div>
+
+                <!-- 侧边栏底部 -->
+                <div class="sidebar-footer">
+                    <button class="footer-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </button>
+                    <button class="footer-btn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="6" cy="12" r="2"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                            <circle cx="18" cy="12" r="2"></circle>
+                        </svg>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- 右侧容器 -->
+            <div class="right-container">
+                <header class="window-header">
+                    <div class="traffic-lights">
+                        <div class="light red"></div>
+                        <div class="light yellow"></div>
+                        <div class="light green"></div>
+                    </div>
+
+                    <button class="column-view-btn" id="toggleSidebar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="9" y1="3" x2="9" y2="21"></line>
+                        </svg>
+                    </button>
+
+                    <div class="window-title">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21L12 17.77L5.82 21L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                        </svg>
+                        GlassChat
+                    </div>
+
+                    <div class="header-actions">
+                        <button class="header-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                        </button>
+                        <div class="avatar"></div>
+                    </div>
+                </header>
+
+                <section class="chat-main">
+                    <div class="messages-list">
+                        <div class="message message-outgoing">
+                            <div class="message-avatar me"></div>
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    你能解释一下 macOS 的毛玻璃效果（Vibrancy）在底层是如何实现的吗？
+                                </div>
+                                <div class="message-time">下午 2:15</div>
+                            </div>
+                        </div>
+
+                        <div class="message message-incoming">
+                            <div class="message-avatar ai">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 6C13.66 6 15 7.34 15 9C15 10.66 13.66 12 12 12C10.34 12 9 10.66 9 9C9 7.34 10.34 6 12 6ZM12 20C9.67 20 7.53 18.83 6.26 16.95C6.74 14.97 8.94 14 12 14C15.06 14 17.26 14.97 17.74 16.95C16.47 18.83 14.33 20 12 20Z"></path>
+                                </svg>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    macOS 的毛玻璃效果（正式名称为 Vibrancy）是其设计语言的基石。在底层，它并不是简单的模糊处理，而是一个复杂的多层合成过程：
+                                    <ol>
+                                        <li><strong>采集源图像</strong>：系统首先获取窗口背后的内容，这包括桌面壁纸或其他窗口的像素。</li>
+                                        <li><strong>多阶段卷积模糊</strong>：通过高度优化的 Metal 着色器应用实时高斯模糊或类似的卷积滤镜。</li>
+                                        <li><strong>颜色吸取 (Color Extraction)</strong>：系统会从背景中提取主色调，并将其注入到前端层，确保模糊效果与环境色彩协调。</li>
+                                        <li><strong>亮度平衡 (Luminosity Control)</strong>：通过特殊的混合模式调整明暗，确保即使背景非常复杂，上层的文字也保持极佳的可读性。</li>
+                                        <li><strong>实时渲染</strong>：由于涉及窗口拖动，整个过程每秒进行 60 到 120 次，对 GPU 的性能要求较高，但得益于 Apple 的深度软硬件整合，它表现得极其流畅。</li>
+                                    </ol>
+                                    在代码层面，开发者通常使用 `NSVisualEffectView` 来实现这一效果。你想了解如何在 Swift 或 Tauri 中调用它吗？
+                                </div>
+                                <div class="message-time">下午 2:16</div>
+                            </div>
+                        </div>
+
+                        <div class="message message-outgoing">
+                            <div class="message-avatar me"></div>
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    非常精彩。那么在 Web 技术栈（如 Tauri 或 Electron）中，我们该如何模拟出这种毛玻璃的质感？
+                                </div>
+                                <div class="message-time">下午 2:18</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-area">
+                        <div class="input-header">
+                            <div class="model-selector">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                    <path d="M12 9L2 14l10 5 10-5-10-5z"></path>
+                                    <path d="M12 16L2 21l10 5 10-5-10-5z"></path>
+                                </svg>
+                                Glass-4 Turbo
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="m6 9 6 6 6-6"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <button class="float-add">+</button>
+
+                        <div class="input-wrap">
+                            <div class="input-row">
+                                <button class="attach-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                    </svg>
+                                </button>
+                                <textarea id="message-input" rows="1" placeholder="输入消息，或输入 / 唤起快捷指令..."></textarea>
+                                <div class="input-actions">
+                                    <button class="input-btn">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                            <path d="M9 9h.01"></path>
+                                            <path d="M15 9h.01"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="send-btn">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="m22 2-7 20-4-9-9-4 20-7Z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-footer">
+                                <span class="input-hint">自动检测 (ZH) 使用 ⇧+Enter 发送</span>
+                                <span class="input-hint">系统就绪</span>
+                            </div>
+                        </div>
+
+                        <div class="disclaimer">GlassChat 可能会产生错误的信息，请核实重要信息。</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 输入框自动高度
+        const textarea = document.getElementById('message-input');
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+        });
+
+        // 侧边栏显隐
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const sidebar = document.querySelector('.sidebar');
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

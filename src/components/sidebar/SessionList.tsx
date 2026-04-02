@@ -3,9 +3,9 @@ import { invoke } from "@tauri-apps/api/core";
 import { useChatStore } from "../../stores/chatStore";
 
 const SIDEBAR_ITEMS = [
-  { id: "skills", label: "技能", icon: "chat" },
-  { id: "apps", label: "应用", icon: "chat" },
-  { id: "automation", label: "自动化", icon: "chat" },
+  { id: "skills", label: "技能" },
+  { id: "apps", label: "应用" },
+  { id: "automation", label: "自动化" },
 ];
 
 const RECENT_ITEMS = [
@@ -26,7 +26,6 @@ export function SessionList({
     setActiveSession,
     addSession,
     setSessions,
-    sessionMessages,
     searchQuery,
     setSearchQuery,
   } = useChatStore();
@@ -53,99 +52,97 @@ export function SessionList({
   );
 
   return (
-    <aside className={`desktop-sidebar glasschat-sidebar ${collapsed ? "desktop-sidebar-collapsed" : ""}`}>
-      <div className="glasschat-sidebar-top">
-        <button onClick={handleNewSession} className="glasschat-new-chat">
-          <span>＋</span>
-          {!collapsed && <span>新对话 (New Chat)</span>}
-        </button>
+    <div className="sidebar-content">
+      {/* 顶部新对话按钮 */}
+      <button onClick={handleNewSession} className="new-chat-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
+        新对话 (New Chat)
+      </button>
 
-        {!collapsed && (
-          <>
-            <div className="glasschat-sidebar-group">
-              <div className="glasschat-sidebar-label">能力入口 (MODULES)</div>
-              <div className="glasschat-variant-list">
-                {SIDEBAR_ITEMS.map((module) => (
-                  <button
-                    key={module.id}
-                    className={`glasschat-variant-item ${
-                      activeModule === module.id ? "glasschat-variant-item-active" : ""
-                    }`}
-                    onClick={() => setActiveModule(module.id)}
-                  >
-                    <span className="glasschat-variant-dot">▢</span>
-                    <span>{module.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <label className="sidebar-search glasschat-sidebar-search">
-              <span>⌕</span>
-              <input
-                data-sidebar-search
-                type="text"
-                placeholder="搜索对话"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </label>
-
-            <div className="glasschat-sidebar-group">
-              <div className="glasschat-sidebar-label">最近对话 (RECENT)</div>
-              <div className="sidebar-session-list glasschat-session-list">
-                {filteredSessions.map((sess) => {
-                  const msgCount = sessionMessages[sess.id]?.length || 0;
-                  const latestPreview =
-                    [...(sessionMessages[sess.id] || [])].reverse().find((msg) => msg.content.trim())?.content ||
-                    "开始新的对话";
-
-                  return (
-                    <button
-                      key={sess.id}
-                      onClick={() => setActiveSession(sess.id)}
-                      onMouseDown={(e) => e.stopPropagation()}
-                      className={`session-card ${activeSessionId === sess.id ? "session-card-active" : ""}`}
-                      type="button"
-                    >
-                      <div className="session-card-head">
-                        <div className="session-card-title">{sess.title}</div>
-                      </div>
-                      <div className="session-card-meta">
-                        <span>{new Date(sess.created_at * 1000).toLocaleDateString()}</span>
-                        <span>·</span>
-                        <span>{msgCount} 条消息</span>
-                      </div>
-                      <div className="session-card-preview">{latestPreview}</div>
-                    </button>
-                  );
-                })}
-                {RECENT_ITEMS.map((item) => (
-                  <button
-                    key={item.id}
-                    className="session-card"
-                    type="button"
-                  >
-                    <div className="session-card-head">
-                      <div className="session-card-title">{item.title}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="glasschat-sidebar-bottom">
-        <div className="glasschat-made-with">GlassChat</div>
-        <div className="glasschat-sidebar-actions">
-          <button onClick={onOpenSettings} className="sidebar-settings-button glasschat-sidebar-action">
-            <span>⚙</span>
-            {!collapsed && <span>设置</span>}
+      {/* 技能/应用/自动化 */}
+      <div className="sidebar-section">
+        {SIDEBAR_ITEMS.map((module) => (
+          <button
+            key={module.id}
+            className={`sidebar-item ${activeModule === module.id ? "active" : ""}`}
+            onClick={() => setActiveModule(module.id)}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            {module.label}
           </button>
-        </div>
+        ))}
       </div>
-    </aside>
+
+      {/* 最近对话 */}
+      <div className="sidebar-section">
+        <div className="section-title">最近对话 (RECENT)</div>
+        {filteredSessions.map((sess) => (
+            <button
+              key={sess.id}
+              onClick={() => setActiveSession(sess.id)}
+              onMouseDown={(e) => e.stopPropagation()}
+              className={`sidebar-item ${activeSessionId === sess.id ? "active" : ""}`}
+              type="button"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              {sess.title}
+            </button>
+        ))}
+        {RECENT_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            className="sidebar-item"
+            type="button"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            {item.title}
+          </button>
+        ))}
+      </div>
+
+      {/* 搜索框 */}
+      {!collapsed && (
+        <label className="sidebar-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <input
+            data-sidebar-search
+            type="text"
+            placeholder="搜索对话"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </label>
+      )}
+
+      {/* 底部 */}
+      <div className="sidebar-footer">
+        <button className="footer-btn" onClick={onOpenSettings} title="设置">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="24" height="24">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+        <button className="footer-btn" title="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <circle cx="6" cy="12" r="2"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+            <circle cx="18" cy="12" r="2"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
   );
 }

@@ -2,9 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useChatStore } from "../../stores/chatStore";
 
-const PLACEHOLDER_MODULES = [
-  { id: "skills", label: "Skills（预留）" },
-  { id: "mcp", label: "MCP（预留）" },
+const SIDEBAR_ITEMS = [
+  { id: "skills", label: "技能", icon: "chat" },
+  { id: "apps", label: "应用", icon: "chat" },
+  { id: "automation", label: "自动化", icon: "chat" },
+];
+
+const RECENT_ITEMS = [
+  { id: "1", title: "React 状态管理讨论" },
+  { id: "2", title: "Tauri 应用性能优化" },
 ];
 
 export function SessionList({
@@ -24,7 +30,7 @@ export function SessionList({
     searchQuery,
     setSearchQuery,
   } = useChatStore();
-  const [activeModule, setActiveModule] = useState(PLACEHOLDER_MODULES[0].id);
+  const [activeModule, setActiveModule] = useState(SIDEBAR_ITEMS[0].id);
 
   useEffect(() => {
     invoke<any[]>("list_sessions").then(setSessions);
@@ -59,7 +65,7 @@ export function SessionList({
             <div className="glasschat-sidebar-group">
               <div className="glasschat-sidebar-label">能力入口 (MODULES)</div>
               <div className="glasschat-variant-list">
-                {PLACEHOLDER_MODULES.map((module) => (
+                {SIDEBAR_ITEMS.map((module) => (
                   <button
                     key={module.id}
                     className={`glasschat-variant-item ${
@@ -114,6 +120,17 @@ export function SessionList({
                     </button>
                   );
                 })}
+                {RECENT_ITEMS.map((item) => (
+                  <button
+                    key={item.id}
+                    className="session-card"
+                    type="button"
+                  >
+                    <div className="session-card-head">
+                      <div className="session-card-title">{item.title}</div>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           </>
@@ -121,7 +138,7 @@ export function SessionList({
       </div>
 
       <div className="glasschat-sidebar-bottom">
-        <div className="glasschat-made-with">Made with Visily</div>
+        <div className="glasschat-made-with">GlassChat</div>
         <div className="glasschat-sidebar-actions">
           <button onClick={onOpenSettings} className="sidebar-settings-button glasschat-sidebar-action">
             <span>⚙</span>

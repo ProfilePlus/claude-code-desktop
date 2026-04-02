@@ -1,0 +1,63 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e10]:
+      - generic [ref=e11]: ClaudeDesktop
+      - generic [ref=e12]: GlassMacOS workspace
+    - button "⚙" [ref=e13] [cursor=pointer]
+  - generic [ref=e14]:
+    - complementary [ref=e15]:
+      - generic [ref=e17]:
+        - generic [ref=e18]: C
+        - generic [ref=e19]:
+          - strong [ref=e20]: ClaudeDesktop
+          - generic [ref=e21]: GlassMacOS
+        - button "⇤" [ref=e22] [cursor=pointer]
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - generic [ref=e25]: ⌕
+          - textbox "⌕" [ref=e26]:
+            - /placeholder: 搜索会话
+        - button "＋ 新对话" [ref=e27] [cursor=pointer]:
+          - generic [ref=e28]: ＋
+          - generic [ref=e29]: 新对话
+      - generic [ref=e30]:
+        - generic [ref=e31]: 最近对话
+        - generic [ref=e32]: "0"
+      - generic [ref=e34]:
+        - img [ref=e36]
+        - generic [ref=e38]: 还没有会话
+        - generic [ref=e39]: 先创建一个会话，左侧列表就会成为你的长期工作记录。
+        - button "新建会话" [ref=e41] [cursor=pointer]
+      - button "⚙ 设置" [ref=e43] [cursor=pointer]:
+        - generic [ref=e44]: ⚙
+        - generic [ref=e45]: 设置
+    - main [ref=e46]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e49]: Claude Desktop
+          - generic [ref=e50]: 准备开始新的对话
+        - generic [ref=e51]:
+          - button "≡" [ref=e52] [cursor=pointer]
+          - generic [ref=e53]: Claude
+          - generic [ref=e54]: opus
+      - generic [ref=e58]:
+        - img [ref=e60]
+        - generic [ref=e62]: 开始新的对话
+        - generic [ref=e63]: 从这里开始你的下一个工作流。搜索、切换会话和输入都保持在同一个安静的玻璃界面里。
+        - generic [ref=e64]:
+          - generic [ref=e65]: Ctrl+K 搜索
+          - generic [ref=e66]: 粘贴图片
+          - generic [ref=e67]: 自动标题
+        - button "新建会话" [ref=e69] [cursor=pointer]
+      - generic [ref=e71]:
+        - generic [ref=e72]:
+          - button "+" [ref=e73] [cursor=pointer]
+          - textbox "输入消息... (Enter 发送, Shift+Enter 换行，也可以直接粘贴图片)" [ref=e75]
+          - button "↑" [disabled] [ref=e76]
+        - generic [ref=e77]:
+          - button "选择模型" [ref=e80] [cursor=pointer]:
+            - generic [ref=e81]: Claude
+            - generic [ref=e82]: ·
+            - generic [ref=e83]: Opus 4.6
+            - generic [ref=e84]: ▾
+          - generic [ref=e85]: 本地工作区

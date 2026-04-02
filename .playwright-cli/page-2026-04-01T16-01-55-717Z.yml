@@ -1,0 +1,132 @@
+- generic [ref=e5]:
+  - generic [ref=e33]:
+    - generic [ref=e35]:
+      - img [ref=e37]
+      - generic [ref=e39]:
+        - status [ref=e40]:
+          - generic [ref=e41]: "Warning:"
+          - generic [ref=e42]: You're viewing something built by another Figma user. Be careful when entering any personal information.
+        - link "Learn more" [ref=e43] [cursor=pointer]:
+          - /url: https://help.figma.com/hc/articles/31304412302231
+      - button "Dismiss" [ref=e45]:
+        - generic:
+          - img
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - button "Back to files" [ref=e50]:
+            - generic:
+              - img
+          - link "Learn more" [ref=e51] [cursor=pointer]:
+            - /url: https://help.figma.com/hc/articles/23870272542231
+            - generic [ref=e52]: AI
+        - generic [ref=e54]:
+          - button "High-Fidelity Chat App Prototype, file name" [ref=e55]: High-Fidelity Chat App Prototype
+          - generic [ref=e56]: File name
+          - button "Edit file menu" [ref=e57]:
+            - generic:
+              - img
+        - generic [ref=e58]:
+          - button "Help" [ref=e60]:
+            - img
+          - button "Sign up with email" [ref=e61]:
+            - generic:
+              - generic:
+                - generic: Sign up with email
+          - button "Continue with Google" [ref=e65]:
+            - generic:
+              - generic:
+                - img
+              - generic: Continue with Google
+      - iframe [ref=e103]:
+        - generic [ref=f4e5]:
+          - generic [ref=f4e6]:
+            - generic [ref=f4e7]:
+              - img [ref=f4e8]
+              - generic [ref=f4e10]:
+                - heading "macOS Claude Desktop Prototype" [level=1] [ref=f4e11]
+                - paragraph [ref=f4e12]: 4 Visual Directions
+            - generic [ref=f4e13]:
+              - button "Classic Productivity macOS productivity app" [ref=f4e14]:
+                - generic [ref=f4e15]: Classic Productivity
+                - generic [ref=f4e16]: macOS productivity app
+              - button "Glassmorphism Soft translucent surfaces" [ref=f4e17]:
+                - generic [ref=f4e18]: Glassmorphism
+                - generic [ref=f4e19]: Soft translucent surfaces
+              - button "Developer Tool Pro developer aesthetic" [ref=f4e20]:
+                - generic [ref=f4e21]: Developer Tool
+                - generic [ref=f4e22]: Pro developer aesthetic
+              - button "Premium Editorial Apple-like editorial" [ref=f4e23]:
+                - generic [ref=f4e24]: Premium Editorial
+                - generic [ref=f4e25]: Apple-like editorial
+          - generic [ref=f4e27]:
+            - generic [ref=f4e28]:
+              - generic [ref=f4e33]: Claude Desktop
+              - button [ref=f4e35]:
+                - img [ref=f4e36]
+            - generic [ref=f4e39]:
+              - generic [ref=f4e40]:
+                - generic [ref=f4e41]:
+                  - generic [ref=f4e42]:
+                    - img [ref=f4e43]
+                    - textbox "搜索对话" [ref=f4e46]
+                  - button "新对话" [ref=f4e47]:
+                    - img [ref=f4e48]
+                    - text: 新对话
+                - generic [ref=f4e50]:
+                  - button "产品设计讨论 上午10:24 关于新功能的原型设计..." [ref=f4e51]:
+                    - generic [ref=f4e52]:
+                      - generic [ref=f4e53]: 产品设计讨论
+                      - generic [ref=f4e54]: 上午10:24
+                    - generic [ref=f4e55]: 关于新功能的原型设计...
+                  - button "技术架构评审 昨天 Tauri 集成方案看起来不错" [ref=f4e56]:
+                    - generic [ref=f4e57]:
+                      - generic [ref=f4e58]: 技术架构评审
+                      - generic [ref=f4e59]: 昨天
+                    - generic [ref=f4e60]: Tauri 集成方案看起来不错
+                  - button "用户体验研究 星期一 用户测试反馈总结" [ref=f4e61]:
+                    - generic [ref=f4e62]:
+                      - generic [ref=f4e63]: 用户体验研究
+                      - generic [ref=f4e64]: 星期一
+                    - generic [ref=f4e65]: 用户测试反馈总结
+                  - button "代码审查会议 星期五 这个 PR 需要重新检查" [ref=f4e66]:
+                    - generic [ref=f4e67]:
+                      - generic [ref=f4e68]: 代码审查会议
+                      - generic [ref=f4e69]: 星期五
+                    - generic [ref=f4e70]: 这个 PR 需要重新检查
+                  - button "市场营销策略 3月28日 Q2 的推广计划" [ref=f4e71]:
+                    - generic [ref=f4e72]:
+                      - generic [ref=f4e73]: 市场营销策略
+                      - generic [ref=f4e74]: 3月28日
+                    - generic [ref=f4e75]: Q2 的推广计划
+              - generic [ref=f4e76]:
+                - heading "产品设计讨论" [level=2] [ref=f4e78]
+                - generic [ref=f4e79]:
+                  - generic [ref=f4e81]:
+                    - generic [ref=f4e82]: 你 · 10:20
+                    - generic [ref=f4e83]: 你好，我想了解一下如何优化应用的启动性能？
+                  - generic [ref=f4e85]:
+                    - generic [ref=f4e86]: Claude · 10:21
+                    - generic [ref=f4e87]: 关于优化启动性能，我建议从以下几个方面入手： 1. 代码分割和懒加载 2. 减少主线程的阻塞操作 3. 优化资源加载顺序 4. 使用性能监控工具找出瓶颈 你的应用目前使用的是什么技术栈？
+                  - generic [ref=f4e89]:
+                    - generic [ref=f4e90]: 你 · 10:23
+                    - generic [ref=f4e91]: 我们用的是 Tauri + React。启动时间大概在 2-3 秒左右。
+                  - generic [ref=f4e93]:
+                    - generic [ref=f4e94]: Claude · 10:24
+                    - generic [ref=f4e95]: 对于 Tauri + React 应用，这里有一些具体建议： **前端优化：** - 使用 Vite 的代码分割功能 - 减少初始渲染的组件数量 - 优化 React 组件的加载策略 **Tauri 原生侧：** - 延迟非关键窗口的创建 - 使用 Tauri 的 async commands - 优化 Rust 代码的编译配置 需要我详细解释某个方面吗？
+                - generic [ref=f4e97]:
+                  - textbox "输入消息..." [ref=f4e98]
+                  - generic [ref=f4e99]:
+                    - button [ref=f4e100]:
+                      - img [ref=f4e101]
+                    - button [ref=f4e104]:
+                      - img [ref=f4e105]
+                    - button [ref=f4e108]:
+                      - img [ref=f4e109]
+  - status
+  - group [ref=e86]:
+    - alert [ref=e88]
+    - alert [ref=e90]
+  - region "Manage cookies or opt out" [ref=e104]:
+    - link "Manage cookies or opt out" [ref=e105]:
+      - /url: /consent-preferences/

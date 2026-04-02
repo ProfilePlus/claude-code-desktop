@@ -40,6 +40,17 @@
   --shadow-sm: 0 12px 30px rgba(60, 83, 140, 0.10);
   --shadow-md: 0 24px 58px rgba(60, 83, 140, 0.16);
   --shadow-lg: 0 36px 92px rgba(60, 83, 140, 0.20);
+  /* Light theme GlassChat variables */
+  --win-bg: #ffffff;
+  --sidebar-bg: #f5f7ff;
+  --bubble-ai: rgba(255, 255, 255, 0.85);
+  --bubble-me: #627AFF;
+  --border: rgba(0, 0, 0, 0.07);
+  --text-main: #1f2940;
+  --text-sub: #5f6d89;
+  --text-placeholder: #9ca8c6;
+  --active: rgba(98, 122, 255, 0.12);
+  --active-color: #627AFF;
 }
 
 * {
@@ -172,13 +183,11 @@ img {
   padding: 0;
 }
 
-.app-frame-maximized .glasschat-window {
+.app-frame-maximized .chat-window {
   width: 100%;
   min-height: 100vh;
   border-radius: 0;
-  border-left: none;
-  border-right: none;
-  border-bottom: none;
+  border: none;
   box-shadow: none;
 }
 
@@ -3003,6 +3012,19 @@ kbd {
   height: 12px;
   padding: 0;
   margin: 0 1px;
+  cursor: pointer;
+}
+
+/* 扩大交通灯点击区域 */
+.traffic-light::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  background: transparent;
+  z-index: 10;
 }
 
 .traffic-light::after {

@@ -255,7 +255,7 @@ function App() {
           {/* 右侧容器 */}
           <div className="right-container">
             {/* 顶部标题栏 */}
-            <header className="window-header">
+            <header className="window-header" data-tauri-drag-region>
               <div className="traffic-lights">
                 <button
                   type="button"

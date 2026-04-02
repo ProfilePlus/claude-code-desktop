@@ -258,7 +258,7 @@ export function ChatInput({
         </div>
       )}
 
-      <button className="float-add" aria-label="添加附件">+</button>
+      <button className="float-add" aria-label="添加附件" onClick={() => fileInputRef.current?.click()}>+</button>
 
       <div className="input-wrap">
         <div className="input-row">
@@ -291,6 +291,7 @@ export function ChatInput({
               type="button"
               className="input-btn"
               aria-label="表情"
+              onClick={() => {}}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10"></circle>

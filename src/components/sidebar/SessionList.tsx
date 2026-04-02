@@ -1,10 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useChatStore } from "../../stores/chatStore";
-import { SessionExport } from "./SessionExport";
-import { EmptySessionList, EmptySearchResult } from "../common/EmptyState";
 
-export function SessionList({ onOpenSettings }: { onOpenSettings: () => void }) {
+const PLACEHOLDER_MODULES = [
+  { id: "skills", label: "Skills（预留）" },
+  { id: "mcp", label: "MCP（预留）" },
+];
+
+export function SessionList({
+  collapsed,
+  onOpenSettings,
+}: {
+  collapsed: boolean;
+  onOpenSettings: () => void;
+}) {
   const {
     sessions,
     activeSessionId,
@@ -14,20 +23,16 @@ export function SessionList({ onOpenSettings }: { onOpenSettings: () => void }) 
     sessionMessages,
     searchQuery,
     setSearchQuery,
-    updateSessionTitle,
   } = useChatStore();
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [activeModule, setActiveModule] = useState(PLACEHOLDER_MODULES[0].id);
 
   useEffect(() => {
     invoke<any[]>("list_sessions").then(setSessions);
   }, [setSessions]);
 
   useEffect(() => {
-    if (!activeSessionId && sessions.length > 0) {
-      setActiveSession(sessions[0].id);
-    }
+    if (sessions.length === 0 || activeSessionId) return;
+    setActiveSession(sessions[0].id);
   }, [activeSessionId, sessions, setActiveSession]);
 
   const handleNewSession = async () => {
@@ -36,156 +41,94 @@ export function SessionList({ onOpenSettings }: { onOpenSettings: () => void }) 
     addSession(session);
   };
 
-  const handleDeleteSession = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm("确定要删除这个会话吗？")) {
-      const success = await invoke<boolean>("delete_session", { id });
-      if (success) {
-        const remaining = sessions.filter((s) => s.id !== id);
-        setSessions(remaining);
-        if (activeSessionId === id) {
-          setActiveSession(remaining[0]?.id || null);
-        }
-      }
-    }
-  };
-
-  const handleRename = (id: string, title: string) => {
-    setEditingId(id);
-    setEditTitle(title);
-  };
-
-  const saveRename = async (id: string) => {
-    if (editTitle.trim()) {
-      updateSessionTitle(id, editTitle.trim());
-      await invoke("update_session_title", { id, title: editTitle.trim() });
-    }
-    setEditingId(null);
-  };
-
-  const filteredSessions = sessions.filter((s) =>
-    s.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredSessions = useMemo(
+    () => sessions.filter((s) => s.title.toLowerCase().includes(searchQuery.toLowerCase())),
+    [searchQuery, sessions]
   );
 
   return (
-    <aside className="desktop-sidebar">
-      <div className="sidebar-nav-list">
-        <button onClick={handleNewSession} className="sidebar-nav-item sidebar-nav-item-active">
-          <span className="sidebar-nav-icon">✎</span>
-          <span>新线程</span>
+    <aside className={`desktop-sidebar glasschat-sidebar ${collapsed ? "desktop-sidebar-collapsed" : ""}`}>
+      <div className="glasschat-sidebar-top">
+        <button onClick={handleNewSession} className="glasschat-new-chat">
+          <span>＋</span>
+          {!collapsed && <span>新对话 (New Chat)</span>}
         </button>
-        <div className="sidebar-nav-item sidebar-nav-item-muted">
-          <span className="sidebar-nav-icon">◔</span>
-          <span>会话</span>
-        </div>
-        <div className="sidebar-nav-item sidebar-nav-item-muted">
-          <span className="sidebar-nav-icon">◫</span>
-          <span>技能</span>
-        </div>
-      </div>
 
-      <div className="sidebar-section-head">
-        <div className="sidebar-section-label">
-          <span>线程</span>
-          <span>{filteredSessions.length}</span>
-        </div>
-        <label className="sidebar-search sidebar-search-compact">
-          <span>⌕</span>
-          <input
-            type="text"
-            placeholder="搜索会话..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </label>
-      </div>
-
-      <div className="sidebar-workspace-label">ClaudeDesktop</div>
-
-      <div className="sidebar-session-list">
-        {sessions.length === 0 ? (
-          <EmptySessionList onNewSession={handleNewSession} />
-        ) : filteredSessions.length === 0 ? (
-          <EmptySearchResult />
-        ) : (
-          filteredSessions.map((sess) => {
-            const msgCount = sessionMessages[sess.id]?.length || 0;
-            const date = new Date(sess.created_at * 1000).toLocaleDateString();
-            const isActive = activeSessionId === sess.id;
-
-            return (
-              <div
-                key={sess.id}
-                onClick={() => !editingId && setActiveSession(sess.id)}
-                onKeyDown={(e) => {
-                  if ((e.key === "Enter" || e.key === " ") && !editingId) {
-                    e.preventDefault();
-                    setActiveSession(sess.id);
-                  }
-                }}
-                className={`session-card ${isActive ? "session-card-active" : ""}`}
-                role="button"
-                tabIndex={0}
-              >
-                {editingId === sess.id ? (
-                  <input
-                    type="text"
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    onBlur={() => saveRename(sess.id)}
-                    onKeyDown={(e) => e.key === "Enter" && saveRename(sess.id)}
-                    className="w-full rounded-xl border border-[var(--accent-primary)] bg-[var(--bg-primary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none"
-                    autoFocus
-                  />
-                ) : (
-                  <>
-                    <div className="session-card-head">
-                      <div className="session-card-title truncate" onDoubleClick={() => handleRename(sess.id, sess.title)}>
-                        {sess.title}
-                      </div>
-                      <div className="session-card-actions">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setExportingId(sess.id);
-                          }}
-                          className="session-icon-button"
-                          title="导出会话"
-                        >
-                          ↓
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleDeleteSession(sess.id, e)}
-                          className="session-icon-button"
-                          title="删除会话"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </div>
-                    <div className="session-card-meta">
-                      <span>{msgCount} 条消息</span>
-                      <span>·</span>
-                      <span>{date}</span>
-                    </div>
-                  </>
-                )}
+        {!collapsed && (
+          <>
+            <div className="glasschat-sidebar-group">
+              <div className="glasschat-sidebar-label">能力入口 (MODULES)</div>
+              <div className="glasschat-variant-list">
+                {PLACEHOLDER_MODULES.map((module) => (
+                  <button
+                    key={module.id}
+                    className={`glasschat-variant-item ${
+                      activeModule === module.id ? "glasschat-variant-item-active" : ""
+                    }`}
+                    onClick={() => setActiveModule(module.id)}
+                  >
+                    <span className="glasschat-variant-dot">▢</span>
+                    <span>{module.label}</span>
+                  </button>
+                ))}
               </div>
-            );
-          })
+            </div>
+
+            <label className="sidebar-search glasschat-sidebar-search">
+              <span>⌕</span>
+              <input
+                data-sidebar-search
+                type="text"
+                placeholder="搜索对话"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </label>
+
+            <div className="glasschat-sidebar-group">
+              <div className="glasschat-sidebar-label">最近对话 (RECENT)</div>
+              <div className="sidebar-session-list glasschat-session-list">
+                {filteredSessions.map((sess) => {
+                  const msgCount = sessionMessages[sess.id]?.length || 0;
+                  const latestPreview =
+                    [...(sessionMessages[sess.id] || [])].reverse().find((msg) => msg.content.trim())?.content ||
+                    "开始新的对话";
+
+                  return (
+                    <button
+                      key={sess.id}
+                      onClick={() => setActiveSession(sess.id)}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      className={`session-card ${activeSessionId === sess.id ? "session-card-active" : ""}`}
+                      type="button"
+                    >
+                      <div className="session-card-head">
+                        <div className="session-card-title">{sess.title}</div>
+                      </div>
+                      <div className="session-card-meta">
+                        <span>{new Date(sess.created_at * 1000).toLocaleDateString()}</span>
+                        <span>·</span>
+                        <span>{msgCount} 条消息</span>
+                      </div>
+                      <div className="session-card-preview">{latestPreview}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </>
         )}
       </div>
 
-      <div className="sidebar-footer">
-        <button onClick={onOpenSettings} className="sidebar-nav-item">
-          <span className="sidebar-nav-icon">⚙</span>
-          <span>设置</span>
-        </button>
+      <div className="glasschat-sidebar-bottom">
+        <div className="glasschat-made-with">Made with Visily</div>
+        <div className="glasschat-sidebar-actions">
+          <button onClick={onOpenSettings} className="sidebar-settings-button glasschat-sidebar-action">
+            <span>⚙</span>
+            {!collapsed && <span>设置</span>}
+          </button>
+        </div>
       </div>
-
-      {exportingId && <SessionExport sessionId={exportingId} onClose={() => setExportingId(null)} />}
     </aside>
   );
 }

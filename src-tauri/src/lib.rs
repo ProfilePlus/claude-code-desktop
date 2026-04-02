@@ -7,6 +7,114 @@ use session::{Session, SessionManager, export};
 use tauri::{AppHandle, Manager, State};
 use std::sync::Mutex;
 use serde_json::Value;
+use std::collections::HashSet;
+use std::path::PathBuf;
+
+#[derive(serde::Serialize)]
+struct ModelOption {
+    id: String,
+    name: String,
+    context: String,
+}
+
+fn to_display_name(model_id: &str) -> String {
+    if model_id.eq_ignore_ascii_case("minimax-m2.7") {
+        return "Glass-4 Turbo".to_string();
+    }
+
+    model_id
+        .split(['-', '_'])
+        .filter(|part| !part.is_empty())
+        .map(|part| {
+            let mut chars = part.chars();
+            match chars.next() {
+                Some(first) => format!("{}{}", first.to_uppercase(), chars.as_str()),
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn push_unique_model(
+    models: &mut Vec<ModelOption>,
+    seen: &mut HashSet<String>,
+    model_id: &str,
+    context: &str,
+) {
+    let trimmed = model_id.trim();
+    if trimmed.is_empty() {
+        return;
+    }
+
+    let key = trimmed.to_lowercase();
+    if seen.contains(&key) {
+        return;
+    }
+
+    seen.insert(key);
+    models.push(ModelOption {
+        id: trimmed.to_string(),
+        name: to_display_name(trimmed),
+        context: context.to_string(),
+    });
+}
+
+fn collect_models_from_settings(path: &PathBuf, models: &mut Vec<ModelOption>, seen: &mut HashSet<String>) {
+    let raw = match std::fs::read_to_string(path) {
+        Ok(content) => content,
+        Err(_) => return,
+    };
+
+    let json = match serde_json::from_str::<Value>(&raw) {
+        Ok(value) => value,
+        Err(_) => return,
+    };
+
+    if let Some(model) = json.get("model").and_then(|v| v.as_str()) {
+        push_unique_model(models, seen, model, "配置");
+    }
+
+    if let Some(env) = json.get("env").and_then(|v| v.as_object()) {
+        for (key, value) in env {
+            if !key.ends_with("_MODEL") && key != "ANTHROPIC_MODEL" && key != "ANTHROPIC_REASONING_MODEL" {
+                continue;
+            }
+
+            if let Some(model) = value.as_str() {
+                let context = if key == "ANTHROPIC_REASONING_MODEL" { "推理" } else { "配置" };
+                push_unique_model(models, seen, model, context);
+            }
+        }
+    }
+}
+
+#[tauri::command]
+fn list_configured_models() -> Result<Vec<ModelOption>, String> {
+    let mut models = Vec::<ModelOption>::new();
+    let mut seen = HashSet::<String>::new();
+
+    // User-level Claude settings, e.g. C:\Users\<name>\.claude\settings.json
+    if let Ok(user_profile) = std::env::var("USERPROFILE") {
+        let settings_path = PathBuf::from(user_profile).join(".claude").join("settings.json");
+        collect_models_from_settings(&settings_path, &mut models, &mut seen);
+    }
+
+    // Project-level Claude settings, e.g. <cwd>\.claude\settings.json
+    if let Ok(cwd) = std::env::current_dir() {
+        let project_settings = cwd.join(".claude").join("settings.json");
+        collect_models_from_settings(&project_settings, &mut models, &mut seen);
+    }
+
+    // Fallback aliases if settings has no explicit model config.
+    if models.is_empty() {
+        for fallback in ["opus", "sonnet", "haiku"] {
+            push_unique_model(&mut models, &mut seen, fallback, "默认");
+        }
+    }
+
+    Ok(models)
+}
 
 #[tauri::command]
 async fn send_message_stream(
@@ -67,6 +175,12 @@ fn export_session(session_id: String, messages: Vec<Value>, format: String) -> R
     }
 }
 
+#[tauri::command]
+fn debug_window_action_log(line: String) -> Result<(), String> {
+    println!("{line}");
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -82,12 +196,14 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             send_message_stream,
+            list_configured_models,
             create_session,
             list_sessions,
             update_session_title,
             delete_session,
             read_image_base64,
-            export_session
+            export_session,
+            debug_window_action_log
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

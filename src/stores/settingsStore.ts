@@ -13,6 +13,8 @@ interface SettingsStore {
   setFontSize: (size: number) => void;
 }
 
+const SETTINGS_STORAGE_KEY = "claude-desktop-settings";
+
 const defaultSettings: Settings = {
   theme: "light",
   fontSize: 14,
@@ -23,12 +25,51 @@ const defaultSettings: Settings = {
   },
 };
 
+function loadStoredSettings(): Settings {
+  if (typeof window === "undefined") {
+    return defaultSettings;
+  }
+
+  try {
+    const stored = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (!stored) {
+      return defaultSettings;
+    }
+
+    return {
+      ...defaultSettings,
+      ...JSON.parse(stored),
+      keybindings: defaultSettings.keybindings,
+    };
+  } catch {
+    return defaultSettings;
+  }
+}
+
+function persistSettings(settings: Settings) {
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  }
+}
+
 export const useSettingsStore = create<SettingsStore>((set) => ({
-  settings: defaultSettings,
+  settings: loadStoredSettings(),
   updateSettings: (newSettings) =>
-    set((s) => ({ settings: { ...s.settings, ...newSettings } })),
+    set((s) => {
+      const settings = { ...s.settings, ...newSettings };
+      persistSettings(settings);
+      return { settings };
+    }),
   setTheme: (theme) =>
-    set((s) => ({ settings: { ...s.settings, theme } })),
+    set((s) => {
+      const settings = { ...s.settings, theme };
+      persistSettings(settings);
+      return { settings };
+    }),
   setFontSize: (fontSize) =>
-    set((s) => ({ settings: { ...s.settings, fontSize } })),
+    set((s) => {
+      const settings = { ...s.settings, fontSize };
+      persistSettings(settings);
+      return { settings };
+    }),
 }));

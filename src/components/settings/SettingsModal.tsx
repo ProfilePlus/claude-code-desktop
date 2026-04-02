@@ -13,7 +13,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
         <div className="settings-header">
           <div>
             <div className="settings-title">设置</div>
-            <div className="settings-copy">保持界面克制、稳定、像桌面应用一样长期可用。</div>
+            <div className="settings-copy">保持界面轻盈、通透，像一层真正贴在桌面上的玻璃应用。</div>
           </div>
           <button onClick={onClose} className="secondary-action" aria-label="关闭设置">
             关闭
@@ -23,7 +23,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
         <div className="settings-body">
           <section className="settings-section">
             <div className="settings-label">主题</div>
-            <div className="settings-help">当前提供深色和浅色两套简约配色，默认保持桌面客户端风格。</div>
+            <div className="settings-help">当前提供深色和浅色两套简约配色，设置会保存在本地，下次打开继续沿用。</div>
             <div className="theme-switcher">
               <button
                 onClick={() => setTheme("dark")}
@@ -44,7 +44,7 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
 
           <section className="settings-section">
             <div className="settings-label">字体大小</div>
-            <div className="settings-help">调整阅读密度，让会话区和侧栏适合你的屏幕尺寸。</div>
+            <div className="settings-help">调整阅读密度，让会话区和侧栏适合你的屏幕尺寸。这个偏好也会自动记住。</div>
             <div className="settings-row">
               <span className="text-[var(--text-secondary)]">当前大小</span>
               <kbd>{settings.fontSize}px</kbd>
@@ -74,6 +74,10 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               <div className="kbd-row">
                 <span>打开设置</span>
                 <kbd>Ctrl+,</kbd>
+              </div>
+              <div className="kbd-row">
+                <span>折叠侧栏</span>
+                <kbd>Ctrl+B</kbd>
               </div>
             </div>
           </section>

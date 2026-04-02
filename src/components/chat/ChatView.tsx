@@ -4,11 +4,50 @@ import { listen } from "@tauri-apps/api/event";
 import { useChatStore, Message } from "../../stores/chatStore";
 import { MessageBubble } from "./MessageBubble";
 import { EmptyChat } from "../common/EmptyState";
-import { DotsLoader } from "../common/LoadingSpinner";
-import { ModelSelector } from "./ModelSelector";
-import { CommandSuggestions } from "./CommandSuggestions";
+import { ChatInput } from "./ChatInput";
 
-export function ChatView() {
+export function ChatView({
+  sidebarCollapsed,
+  onToggleSidebar,
+}: {
+  sidebarCollapsed: boolean;
+  onToggleSidebar: () => void;
+}) {
+  const normalizeAssistantText = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      return text;
+    }
+
+    const compact = trimmed.replace(/\s+/g, " ").trim();
+    for (let size = 1; size <= Math.floor(compact.length / 2); size += 1) {
+      if (compact.length % size !== 0) {
+        continue;
+      }
+
+      const unit = compact.slice(0, size);
+      if (unit.repeat(compact.length / size) === compact) {
+        return unit;
+      }
+    }
+
+    const sentenceParts = compact
+      .split(/(?<=[。！？!?])\s*|\s{2,}|\n+/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    if (sentenceParts.length >= 2 && sentenceParts.length % 2 === 0) {
+      const midpoint = sentenceParts.length / 2;
+      const firstHalf = sentenceParts.slice(0, midpoint);
+      const secondHalf = sentenceParts.slice(midpoint);
+      if (JSON.stringify(firstHalf) === JSON.stringify(secondHalf)) {
+        return firstHalf.join(" ");
+      }
+    }
+
+    return compact;
+  };
+
   const {
     activeSessionId,
     sessionMessages,
@@ -59,7 +98,6 @@ export function ChatView() {
 
   const messages = activeSessionId ? sessionMessages[activeSessionId] || [] : [];
   const currentSession = sessions.find((s) => s.id === activeSessionId);
-
   useEffect(() => {
     // 只在非流式状态时滚动，避免频繁滚动导致闪烁
     if (!loading) {
@@ -142,8 +180,9 @@ export function ChatView() {
           const currentMsg = messages.find((m) => m.id === currentMsgIdRef.current);
           console.log("[ChatView] stream-done currentMsg:", currentMsg);
           if (currentMsg && event.payload.full_text) {
-            console.log("[ChatView] Updating message with full_text:", event.payload.full_text);
-            updateMessage(activeSessionId!, currentMsgIdRef.current, event.payload.full_text);
+            const normalizedText = normalizeAssistantText(event.payload.full_text);
+            console.log("[ChatView] Updating message with full_text:", normalizedText);
+            updateMessage(activeSessionId!, currentMsgIdRef.current, normalizedText);
           }
 
           setMessageStreaming(activeSessionId!, currentMsgIdRef.current, false);
@@ -324,32 +363,24 @@ export function ChatView() {
   };
 
   return (
-    <main className="desktop-main">
-      <header className="chat-header">
-        <div className="chat-title-block">
-          <div className="chat-title">{currentSession?.title || "Claude Desktop"}</div>
-          <div className="chat-subtitle">{currentSession ? "ClaudeDesktop" : "ClaudeDesktop"}</div>
-        </div>
-        <div className="chat-header-actions">
-          <button className="header-icon-button" title="运行">
-            ▷
-          </button>
-          <div className="header-pill">Claude</div>
-          <div className="header-pill">本地</div>
-          <button className="header-icon-button" title="更多">
-            ⋯
-          </button>
-        </div>
-      </header>
-
+    <main className="desktop-main glasschat-main">
+      <div className="glasschat-stage-toolbar">
+        <button
+          className="header-icon-button header-sidebar-button"
+          onClick={onToggleSidebar}
+          title={sidebarCollapsed ? "展开侧栏" : "折叠侧栏"}
+        >
+          {sidebarCollapsed ? "☰" : "≡"}
+        </button>
+      </div>
       <div className="chat-scroll">
         <div className="chat-scroll-inner">
           {!activeSessionId || messages.length === 0 ? (
-            <div className="empty-board">
+            <div className="empty-board glasschat-empty-board">
               <EmptyChat onNewSession={handleNewSession} />
             </div>
           ) : (
-            <div className="message-list">
+            <div className="message-list glasschat-message-list">
               {messages.map((msg) =>
                 editingId === msg.id ? (
                   <div key={msg.id} className="message-editor animate-scale-in">
@@ -384,278 +415,15 @@ export function ChatView() {
                 )
               )}
 
-              {loading && (
-                <div className="message-row animate-fade-in">
-                  <div className="message-bubble message-bubble-assistant">
-                    <div className="message-meta">
-                      <span>Claude</span>
-                      <span className="message-dot"></span>
-                      <span>正在响应</span>
-                    </div>
-                    <DotsLoader />
-                  </div>
-                </div>
-              )}
               <div ref={bottomRef} />
             </div>
           )}
         </div>
       </div>
 
-      <div className="chat-compose-wrap">
-        <InputArea onSend={handleSend} disabled={loading} onStop={handleStopGeneration} />
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-[999] flex justify-center px-5">
+        <ChatInput onSend={handleSend} disabled={loading} onStop={handleStopGeneration} />
       </div>
     </main>
-  );
-}
-
-function InputArea({
-  onSend,
-  disabled,
-  onStop,
-}: {
-  onSend: (text: string, images?: Array<{ path: string; mediaType: string; data: string }>) => void;
-  disabled: boolean;
-  onStop: () => void;
-}) {
-  const [text, setText] = useState("");
-  const [images, setImages] = useState<Array<{ path: string; mediaType: string; data: string }>>([]);
-  const [showCommands, setShowCommands] = useState(false);
-  const [commandQuery, setCommandQuery] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleStop = () => {
-    onStop();
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    const newImages: Array<{ path: string; mediaType: string; data: string }> = [];
-    const supportedTypes = [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
-      'application/pdf', 'text/plain', 'text/csv',
-      'application/json', 'text/html', 'text/css', 'text/javascript'
-    ];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      // 检查文件类型
-      if (!supportedTypes.includes(file.type) && !file.type.startsWith('text/')) {
-        alert(`不支持的文件类型: ${file.type}\n支持的类型: 图片、PDF、文本文件`);
-        continue;
-      }
-
-      // 检查文件大小 (限制为 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        alert(`文件太大: ${file.name}\n最大支持 10MB`);
-        continue;
-      }
-
-      const reader = new FileReader();
-
-      await new Promise<void>((resolve) => {
-        reader.onload = () => {
-          const base64 = (reader.result as string).split(",")[1];
-          newImages.push({
-            path: file.name,
-            mediaType: file.type || 'application/octet-stream',
-            data: base64,
-          });
-          resolve();
-        };
-        reader.onerror = () => {
-          alert(`读取文件失败: ${file.name}`);
-          resolve();
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    if (newImages.length > 0) {
-      setImages((current) => [...current, ...newImages]);
-    }
-
-    // 重置 input 以允许选择相同文件
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    setText(value);
-
-    // 简化逻辑：只要包含 / 就显示命令提示
-    if (value.includes("/")) {
-      const lastSlashIndex = value.lastIndexOf("/");
-      const query = value.slice(lastSlashIndex);
-      setShowCommands(true);
-      setCommandQuery(query);
-    } else {
-      setShowCommands(false);
-    }
-  };
-
-  const handleCommandSelect = (command: string) => {
-    const cursorPos = textareaRef.current?.selectionStart || 0;
-    const textBeforeCursor = text.slice(0, cursorPos);
-    const lastSlashIndex = textBeforeCursor.lastIndexOf("/");
-
-    if (lastSlashIndex !== -1) {
-      const newText = text.slice(0, lastSlashIndex) + command + " " + text.slice(cursorPos);
-      setText(newText);
-      setShowCommands(false);
-
-      // 将光标移到命令后面
-      setTimeout(() => {
-        const newCursorPos = lastSlashIndex + command.length + 1;
-        textareaRef.current?.setSelectionRange(newCursorPos, newCursorPos);
-        textareaRef.current?.focus();
-      }, 0);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // 如果命令提示框打开，让它处理方向键和回车
-    if (showCommands && (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Enter")) {
-      return;
-    }
-
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendClick();
-    }
-
-    // ESC 关闭命令提示
-    if (e.key === "Escape" && showCommands) {
-      setShowCommands(false);
-    }
-  };
-
-  const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.startsWith("image/")) {
-        e.preventDefault();
-        const blob = item.getAsFile();
-        if (blob) {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const base64 = (reader.result as string).split(",")[1];
-            const mediaType = blob.type;
-            setImages((current) => [
-              ...current,
-              { path: blob.name || "pasted-image", mediaType, data: base64 },
-            ]);
-          };
-          reader.readAsDataURL(blob);
-        }
-      }
-    }
-  };
-
-  const handleSendClick = () => {
-    if (!text.trim() && images.length === 0) return;
-    onSend(text, images.length > 0 ? images : undefined);
-    setText("");
-    setImages([]);
-    textareaRef.current?.focus();
-  };
-
-  return (
-    <div className="chat-compose-panel">
-      {images.length > 0 && (
-        <div className="attachment-strip animate-slide-in-bottom">
-          {images.map((img, idx) => (
-            <div key={`${img.path}-${idx}`} className="attachment-preview-card">
-              {img.mediaType.startsWith('image/') ? (
-                <img
-                  src={`data:${img.mediaType};base64,${img.data}`}
-                  alt="preview"
-                  className="attachment-thumbnail"
-                />
-              ) : (
-                <div className="attachment-file-preview">
-                  <div className="attachment-file-name">{img.path}</div>
-                  <div className="attachment-file-type">{img.mediaType.split('/')[1]?.toUpperCase() || 'FILE'}</div>
-                </div>
-              )}
-              <button
-                onClick={() => setImages(images.filter((_, i) => i !== idx))}
-                className="attachment-remove-btn"
-                title="删除文件"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* 隐藏的文件输入 */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-      />
-
-      <div className="composer-shell">
-        <label
-          className="icon-button"
-          title="添加文件"
-          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-        >
-          +
-          <input
-            type="file"
-            multiple
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          />
-        </label>
-
-        <div className="compose-input-shell">
-          {showCommands && (
-            <CommandSuggestions
-              query={commandQuery}
-              onSelect={handleCommandSelect}
-              position={{ top: 60, left: 0 }}
-            />
-          )}
-          <textarea
-            ref={textareaRef}
-            className="compose-textarea"
-            placeholder="输入消息... (Enter 发送, Shift+Enter 换行，也可以直接粘贴图片)"
-            value={text}
-            onChange={handleTextChange}
-            onKeyDown={handleKeyDown}
-            onPaste={handlePaste}
-            disabled={disabled}
-            rows={3}
-          />
-        </div>
-        <button
-          className="compose-send-circle"
-          onClick={disabled ? handleStop : handleSendClick}
-          disabled={!disabled && (!text.trim() && images.length === 0)}
-          title={disabled ? "停止生成" : "发送消息"}
-        >
-          {disabled ? "■" : "↑"}
-        </button>
-      </div>
-      <div className="compose-footer">
-        <ModelSelector />
-        <div className="compose-hint">本地 · main</div>
-      </div>
-    </div>
   );
 }

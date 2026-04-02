@@ -8,10 +8,6 @@ const SIDEBAR_ITEMS = [
   { id: "automation", label: "自动化" },
 ];
 
-const RECENT_ITEMS = [
-  { id: "1", title: "React 状态管理讨论" },
-  { id: "2", title: "Tauri 应用性能优化" },
-];
 
 export function SessionList({
   collapsed,
@@ -25,6 +21,7 @@ export function SessionList({
     activeSessionId,
     setActiveSession,
     addSession,
+    deleteSession,
     setSessions,
     searchQuery,
     setSearchQuery,
@@ -41,9 +38,23 @@ export function SessionList({
   }, [activeSessionId, sessions, setActiveSession]);
 
   const handleNewSession = async () => {
-    const id = Date.now().toString();
-    const session = await invoke<any>("create_session", { id });
-    addSession(session);
+    try {
+      const id = Date.now().toString();
+      const session = await invoke<any>("create_session", { id });
+      addSession(session);
+    } catch (err) {
+      console.error("Failed to create session:", err);
+    }
+  };
+
+  const handleDeleteSession = async (e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation();
+    try {
+      await invoke<boolean>("delete_session", { id: sessionId });
+      deleteSession(sessionId);
+    } catch (err) {
+      console.error("Failed to delete session:", err);
+    }
   };
 
   const filteredSessions = useMemo(
@@ -77,39 +88,6 @@ export function SessionList({
         ))}
       </div>
 
-      {/* 最近对话 */}
-      <div className="sidebar-section">
-        <div className="section-title">最近对话 (RECENT)</div>
-        {filteredSessions.map((sess) => (
-            <button
-              key={sess.id}
-              onClick={() => setActiveSession(sess.id)}
-              onMouseDown={(e) => e.stopPropagation()}
-              className={`sidebar-item ${activeSessionId === sess.id ? "active" : ""}`}
-              type="button"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              {sess.title}
-            </button>
-        ))}
-        {RECENT_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            className="sidebar-item"
-            type="button"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            {item.title}
-          </button>
-        ))}
-      </div>
-
       {/* 搜索框 */}
       {!collapsed && (
         <label className="sidebar-search">
@@ -126,6 +104,37 @@ export function SessionList({
           />
         </label>
       )}
+
+      {/* 最近对话 */}
+      <div className="sidebar-section">
+        <div className="section-title">最近对话 (RECENT)</div>
+        {filteredSessions.map((sess) => (
+            <button
+              key={sess.id}
+              onClick={() => setActiveSession(sess.id)}
+              onMouseDown={(e) => e.stopPropagation()}
+              className={`sidebar-item ${activeSessionId === sess.id ? "active" : ""}`}
+              type="button"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span className="session-title-text">{sess.title}</span>
+              <button
+                className="session-delete-btn"
+                onClick={(e) => handleDeleteSession(e, sess.id)}
+                onMouseDown={(e) => e.stopPropagation()}
+                title="删除对话"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </button>
+        ))}
+      </div>
 
       {/* 底部 */}
       <div className="sidebar-footer">

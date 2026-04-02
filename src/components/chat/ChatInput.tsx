@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useChatStore } from "../../stores/chatStore";
+import { CommandSuggestions } from "./CommandSuggestions";
 
 type UploadAsset = { path: string; mediaType: string; data: string };
 
@@ -54,24 +55,39 @@ export function ChatInput({
   const [text, setText] = useState("");
   const [images, setImages] = useState<UploadAsset[]>([]);
   const [modelOpen, setModelOpen] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const [availableModels, setAvailableModels] = useState<ModelOption[]>(MODEL_OPTIONS);
+  const [commandQuery, setCommandQuery] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const modelPanelRef = useRef<HTMLDivElement>(null);
+  const emojiRef = useRef<HTMLDivElement>(null);
+  const textareaWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modelPanelRef.current && !modelPanelRef.current.contains(event.target as Node)) {
         setModelOpen(false);
       }
+      if (emojiRef.current && !emojiRef.current.contains(event.target as Node)) {
+        setEmojiOpen(false);
+      }
     };
 
-    if (modelOpen) {
+    if (modelOpen || emojiOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [modelOpen]);
+  }, [modelOpen, emojiOpen]);
+
+  const EMOJI_LIST = ["😀", "😃", "😄", "😁", "😅", "😂", "🤣", "😊", "😇", "🙂", "😉", "😌", "😍", "🥰", "😘", "😋", "😛", "🤔", "👍", "👎"];
+
+  const handleEmojiSelect = (emoji: string) => {
+    setText((prev) => prev + emoji);
+    setEmojiOpen(false);
+    textareaRef.current?.focus();
+  };
   const currentModel = useMemo(() => getDynamicModel(selectedModel), [selectedModel]);
   const models = useMemo(() => {
     const existing = availableModels.find((model) => model.id === selectedModel);
@@ -113,12 +129,6 @@ export function ChatInput({
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (availableModels.length === 0) return;
-    if (availableModels.some((model) => model.id === selectedModel)) return;
-    setSelectedModel(availableModels[0].id);
-  }, [availableModels, selectedModel, setSelectedModel]);
 
   useLayoutEffect(() => {
     if (!textareaRef.current) return;
@@ -162,6 +172,24 @@ export function ChatInput({
 
   const handleChange = (value: string) => {
     setText(value);
+    // 检测 / 开头来显示命令提示
+    if (value.startsWith("/")) {
+      setCommandQuery(value);
+    } else {
+      setCommandQuery("");
+    }
+  };
+
+  const handleCommandSelect = (command: string) => {
+    // 找到第一个空格或行的位置
+    const spaceIndex = text.indexOf(" ");
+    if (spaceIndex === -1) {
+      setText(command + " ");
+    } else {
+      setText(command + " ");
+    }
+    setCommandQuery("");
+    textareaRef.current?.focus();
   };
 
   const handleSubmit = () => {
@@ -244,6 +272,7 @@ export function ChatInput({
               type="button"
               className={`model-selector-option ${selectedModel === model.id ? "model-selector-option-active" : ""}`}
               onClick={() => {
+                console.log("[ChatInput] Selecting model:", model.id);
                 setSelectedModel(model.id);
                 setModelOpen(false);
               }}
@@ -258,8 +287,6 @@ export function ChatInput({
         </div>
       )}
 
-      <button className="float-add" aria-label="添加附件" onClick={() => fileInputRef.current?.click()}>+</button>
-
       <div className="input-wrap">
         <div className="input-row">
           <button
@@ -273,33 +300,60 @@ export function ChatInput({
             </svg>
           </button>
 
-          <textarea
-            ref={textareaRef}
-            id="message-input"
-            rows={1}
-            value={text}
-            onChange={(e) => handleChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onPaste={handlePaste}
-            disabled={disabled}
-            placeholder="输入消息，或输入 / 唤起快捷指令..."
-            aria-label="消息输入框"
-          />
+          <div ref={textareaWrapRef} style={{ position: "relative", flex: 1 }}>
+            <textarea
+              ref={textareaRef}
+              id="message-input"
+              rows={1}
+              value={text}
+              onChange={(e) => handleChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onPaste={handlePaste}
+              disabled={disabled}
+              placeholder="输入消息，或输入 / 唤起快捷指令..."
+              aria-label="消息输入框"
+            />
+            {commandQuery && (
+              <CommandSuggestions
+                query={commandQuery}
+                onSelect={handleCommandSelect}
+                position={{ top: 0, left: 0 }}
+              />
+            )}
+          </div>
 
           <div className="input-actions">
-            <button
-              type="button"
-              className="input-btn"
-              aria-label="表情"
-              onClick={() => {}}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                <path d="M9 9h.01"></path>
-                <path d="M15 9h.01"></path>
-              </svg>
-            </button>
+            <div ref={emojiRef} style={{ position: "relative" }}>
+              <button
+                type="button"
+                className="input-btn"
+                aria-label="表情"
+                onClick={() => setEmojiOpen((prev) => !prev)}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                  <path d="M9 9h.01"></path>
+                  <path d="M15 9h.01"></path>
+                </svg>
+              </button>
+              {emojiOpen && (
+                <div className="emoji-popover">
+                  <div className="emoji-grid">
+                    {EMOJI_LIST.map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        className="emoji-btn"
+                        onClick={() => handleEmojiSelect(emoji)}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             <button
               type="button"
@@ -339,7 +393,7 @@ export function ChatInput({
         </div>
       )}
 
-      <div className="disclaimer">GlassChat 可能会产生错误的信息，请核实重要信息。</div>
+      <div className="disclaimer">ClaudeDesktop 可能会产生错误的信息，请核实重要信息。</div>
     </div>
   );
 }

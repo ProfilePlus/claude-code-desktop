@@ -45,6 +45,7 @@ interface ChatStore {
 
   setSessions: (sessions: Session[]) => void;
   addSession: (session: Session) => void;
+  deleteSession: (id: string) => void;
   setActiveSession: (id: string | null) => void;
   updateSessionTitle: (id: string, title: string) => void;
   updateSessionCliId: (id: string, cliId: string) => void;
@@ -229,6 +230,23 @@ export const useChatStore = create<ChatStore>((set) => ({
     return {
       sessions: [session, ...s.sessions],
       activeSessionId: session.id,
+      sessionMessages: nextMessages
+    };
+  }),
+  deleteSession: (id) => set((s) => {
+    const nextSessions = s.sessions.filter((session) => session.id !== id);
+    const nextMessages = { ...s.sessionMessages };
+    delete nextMessages[id];
+    persistSessionMessages(nextMessages);
+    // 如果删除的是当前活动会话，切换到第一个可用会话
+    let nextActiveId = s.activeSessionId;
+    if (s.activeSessionId === id) {
+      nextActiveId = nextSessions.length > 0 ? nextSessions[0].id : null;
+      persistActiveSession(nextActiveId);
+    }
+    return {
+      sessions: nextSessions,
+      activeSessionId: nextActiveId,
       sessionMessages: nextMessages
     };
   }),

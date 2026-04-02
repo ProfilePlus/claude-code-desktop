@@ -245,7 +245,11 @@ export function ChatView({
   };
 
   const handleNewSession = async () => {
-    await ensureSession();
+    try {
+      await ensureSession();
+    } catch (err) {
+      console.error("Failed to create session:", err);
+    }
   };
 
   const handleEdit = (id: string) => {
@@ -310,6 +314,8 @@ export function ChatView({
     images?: Array<{ path: string; mediaType: string; data: string }>
   ) => {
     if ((!text.trim() && !images?.length) || loading) return;
+
+    console.log("[ChatView] handleSend selectedModel:", selectedModel);
 
     const sessionId = await ensureSession();
     const session = sessions.find((item) => item.id === sessionId);
